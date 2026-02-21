@@ -81,6 +81,7 @@
             backdrop-filter: blur(20px); box-shadow: 0 30px 60px rgba(0,0,0,0.9); 
             width: 360px; transition: transform 0.5s ease;
             z-index: 2001;
+            box-sizing: border-box;
         }
         .gate-card h1 { 
             font-size: 2rem; letter-spacing: 0.6rem; color: #fff; 
@@ -147,6 +148,20 @@
             text-transform: uppercase;
             letter-spacing: 1px;
             font-weight: 400;
+        }
+
+        /* --- MOBILE OPTIMIZATION --- */
+        @media (max-width: 768px) {
+            .slide { padding: 100px 5% 60px 5%; justify-content: flex-start; } /* Push content to top so nothing gets cut off */
+            .slide h2 { font-size: 2.2rem; margin-bottom: 15px; }
+            .slide p { font-size: 1rem; margin-bottom: 30px; }
+            .grid, .grid-3 { grid-template-columns: 1fr; gap: 15px; } /* Stack cards vertically */
+            .card { padding: 25px; }
+            .gate-card { width: 90%; max-width: 360px; padding: 40px 20px; }
+            #roadmap { display: none !important; } /* Hide the dots on mobile to keep screen clean */
+            #header { padding: 20px; }
+            #header h1 { font-size: 1rem; }
+            .source-tag { bottom: 20px; right: 5%; font-size: 0.65rem; }
         }
     </style>
 </head>
@@ -337,7 +352,10 @@
                     gate.style.display = "none";
                     document.getElementById("deck-container").style.display = "block";
                     document.getElementById("header").style.display = "block";
-                    document.getElementById("roadmap").style.display = "flex";
+                    // Only show roadmap if not on mobile
+                    if(window.innerWidth > 768) {
+                        document.getElementById("roadmap").style.display = "flex";
+                    }
                 }, 800);
             } else { 
                 alert("DENIED.");
@@ -351,6 +369,7 @@
         }
 
         function updateRoadmap() {
+            if(window.innerWidth <= 768) return; // Skip updating dots on mobile
             const container = document.getElementById("deck-container");
             const index = Math.round(container.scrollTop / window.innerHeight);
             const dots = document.querySelectorAll('.dot');
