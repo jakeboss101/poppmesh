@@ -3,202 +3,481 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>POPPMESH | Confidential Investor Portal</title>
+    <title>POPPMESH INC. | Investor Portal</title>
     <style>
-        /* Base Styling */
-        body {
-            font-family: 'Helvetica Neue', Arial, sans-serif;
-            background-color: #050505;
-            color: #ffffff;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700;900&display=swap');
+
+        :root { 
+            --primary: #00e5ff; 
+            --primary-glow: rgba(0, 229, 255, 0.4);
+            --bg: #02040a; 
+            --panel: rgba(10, 12, 18, 0.7); 
+            --panel-border: rgba(255, 255, 255, 0.08);
         }
 
-        /* Password Gate Styling */
-        #gate-container {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            width: 100%;
+        body, html { 
+            margin: 0; padding: 0; 
+            font-family: 'Inter', -apple-system, sans-serif; 
+            background-color: var(--bg); 
+            color: #ffffff; 
+            height: 100%; 
+            overflow: hidden; 
+            -webkit-font-smoothing: antialiased;
         }
-
-        #gate-container h1 {
-            font-size: 3rem;
-            letter-spacing: 0.3rem;
-            margin-bottom: 5px;
+        
+        /* Fixed Background Canvas */
+        #bg-canvas { 
+            position: fixed; 
+            width: 100vw; 
+            height: 100vh; 
+            top: 0; 
+            left: 0; 
+            z-index: 0; /* Background layer */
+            pointer-events: none;
         }
-
-        #gate-container p.tagline {
-            color: #888;
-            font-style: italic;
-            margin-bottom: 40px;
-            letter-spacing: 0.05rem;
+        
+        #header { 
+            position: fixed; top: 0; width: 100%; padding: 30px 50px; z-index: 1001; 
+            background: linear-gradient(to bottom, rgba(2,4,10,0.9), rgba(2,4,10,0)); 
+            display: none; box-sizing: border-box;
         }
-
-        .password-input {
-            padding: 15px 20px;
-            font-size: 1.2rem;
-            background-color: #111;
-            border: 1px solid #333;
-            color: #fff;
-            border-radius: 5px;
-            text-align: center;
-            width: 300px;
-            margin-bottom: 20px;
-            outline: none;
-            transition: border-color 0.3s ease;
+        #header h1 { 
+            margin: 0; font-size: 1.2rem; letter-spacing: 0.5rem; color: #fff; 
+            font-weight: 900; text-transform: uppercase;
         }
+        #header h1 span { color: var(--primary); }
 
-        .password-input:focus {
-            border-color: #fff;
+        #roadmap { 
+            position: fixed; left: 40px; top: 50%; transform: translateY(-50%); 
+            z-index: 1000; display: none; flex-direction: column; gap: 15px; align-items: center; 
         }
+        .dot { 
+            width: 12px; height: 12px; border: 2px solid #333; border-radius: 50%; 
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); cursor: pointer; 
+            position: relative; background: #000;
+        }
+        .dot.active { 
+            background-color: var(--primary); border-color: var(--primary); 
+            box-shadow: 0 0 15px var(--primary-glow); transform: scale(1.3);
+        }
+        .dot::after {
+            content: attr(data-label);
+            position: absolute; left: 25px; top: 50%; transform: translateY(-50%);
+            font-size: 0.8rem; color: #888; letter-spacing: 1px; text-transform: uppercase;
+            opacity: 0; white-space: nowrap; transition: 0.3s ease; pointer-events: none;
+        }
+        .dot:hover::after, .dot.active::after { opacity: 1; color: #fff; }
 
-        .submit-btn {
-            padding: 15px 40px;
-            font-size: 1rem;
+        /* THE GATE */
+        #gate-container { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            display: flex; justify-content: center; align-items: center; 
+            z-index: 2000; transition: opacity 0.8s ease; 
+        }
+        .gate-card { 
+            background: rgba(5, 7, 12, 0.9); 
+            padding: 50px 40px; border-radius: 20px; 
+            border: 1px solid var(--panel-border); text-align: center; 
+            backdrop-filter: blur(20px); box-shadow: 0 30px 60px rgba(0,0,0,0.9); 
+            width: 360px; transition: transform 0.5s ease;
+            z-index: 2001;
+        }
+        .gate-card h1 { 
+            font-size: 2rem; letter-spacing: 0.6rem; color: #fff; 
+            margin-bottom: 20px; font-weight: 900; margin-right: -0.6rem;
+        }
+        .gate-card h1 span { color: var(--primary); }
+        .gate-tagline {
+            font-size: 0.85rem; letter-spacing: 2px; color: #a1a1aa; 
+            margin-bottom: 40px; text-transform: uppercase; font-weight: 300;
+        }
+        
+        .password-input { 
+            padding: 16px; font-size: 1.5rem; background: rgba(0,0,0,0.5); 
+            border: 1px solid #333; color: var(--primary); border-radius: 8px; 
+            text-align: center; width: 100%; outline: none; letter-spacing: 8px; 
+            margin-bottom: 25px; box-sizing: border-box; transition: 0.3s;
             font-weight: bold;
+        }
+        .password-input:focus { border-color: var(--primary); }
+        
+        .submit-btn { 
+            padding: 16px 0; background: #fff; color: #000; border: none; 
+            font-weight: 900; cursor: pointer; border-radius: 8px; 
+            text-transform: uppercase; letter-spacing: 3px; width: 100%; 
+            transition: all 0.3s ease; font-size: 0.9rem;
+        }
+        .submit-btn:hover { background: var(--primary); box-shadow: 0 10px 20px var(--primary-glow); }
+
+        #deck-container { 
+            display: none; height: 100vh; overflow-y: scroll; 
+            scroll-snap-type: y mandatory; scroll-behavior: smooth; position: relative; z-index: 100; 
+        }
+        #deck-container::-webkit-scrollbar { display: none; }
+
+        .slide { 
+            min-height: 100vh; width: 100%; display: flex; flex-direction: column; 
+            justify-content: center; align-items: center; scroll-snap-align: start; 
+            padding: 80px 15%; box-sizing: border-box; position: relative;
+        }
+        .slide h2 { 
+            font-size: 4rem; color: #fff; text-transform: uppercase; 
+            margin-bottom: 20px; font-weight: 900; text-align: center; letter-spacing: -1px; line-height: 1.1;
+        }
+        .slide p { 
+            font-size: 1.4rem; line-height: 1.6; color: #a1a1aa; 
+            text-align: center; max-width: 900px; font-weight: 300; margin-bottom: 40px; 
+        }
+        
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; width: 100%; max-width: 1100px; }
+        .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; width: 100%; max-width: 1200px; }
+        
+        .card { background: var(--panel); padding: 35px; border-radius: 16px; border: 1px solid var(--panel-border); backdrop-filter: blur(15px); transition: transform 0.3s ease; }
+        .card h3 { color: #fff; margin-top: 0; font-size: 1.1rem; text-transform: uppercase; letter-spacing: 2px; border-bottom: 1px solid #333; padding-bottom: 15px; margin-bottom: 20px; }
+        .card p { font-size: 1.1rem; text-align: left; margin-bottom: 0; color: #d4d4d8; line-height: 1.5;}
+        .highlight { color: var(--primary); font-weight: bold; }
+
+        /* Slide Sources */
+        .source-tag {
+            position: absolute;
+            bottom: 40px;
+            right: 15%;
+            font-size: 0.75rem;
+            color: rgba(255, 255, 255, 0.3);
             text-transform: uppercase;
-            letter-spacing: 0.1rem;
-            background-color: #fff;
-            color: #000;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
+            letter-spacing: 1px;
+            font-weight: 400;
         }
-
-        .submit-btn:hover {
-            background-color: #ccc;
-        }
-
-        #error-msg {
-            color: #ff4444;
-            margin-top: 15px;
-            display: none;
-            font-size: 0.9rem;
-        }
-
-        /* Unlocked Portal Styling */
-        #portal-container {
-            display: none;
-            width: 100%;
-            max-width: 900px;
-            padding: 60px 20px;
-        }
-
-        .portal-header {
-            text-align: center;
-            border-bottom: 1px solid #333;
-            padding-bottom: 30px;
-            margin-bottom: 40px;
-        }
-
-        .portal-header h2 {
-            font-size: 2.5rem;
-            letter-spacing: 0.1rem;
-            margin: 0 0 10px 0;
-        }
-
-        .portal-header p {
-            color: #aaa;
-            font-size: 1.1rem;
-        }
-
-        /* Pitch Deck Content Grid */
-        .slide-preview {
-            background-color: #111;
-            border: 1px solid #222;
-            padding: 30px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-        }
-
-        .slide-preview h3 {
-            color: #fff;
-            margin-top: 0;
-            border-bottom: 1px solid #333;
-            padding-bottom: 10px;
-        }
-
-        .slide-preview p {
-            color: #ccc;
-            line-height: 1.6;
-        }
-
-        .download-section {
-            text-align: center;
-            margin-top: 50px;
-        }
-
     </style>
 </head>
-<body>
+<body onload="initCanvas()">
+    <canvas id="bg-canvas"></canvas>
+    
+    <div id="header"><h1>POPP<span>MESH</span></h1></div>
 
-    <div id="gate-container">
-        <h1>POPPMESH</h1>
-        <p class="tagline">We don't force. We attract.</p>
-        
-        <input type="password" id="passInput" class="password-input" placeholder="Enter Access Code" onkeypress="handleKeyPress(event)">
-        <button class="submit-btn" onclick="checkPassword()">Unlock Portal</button>
-        <p id="error-msg">Incorrect access code. Please try again.</p>
+    <div id="roadmap">
+        <div class="dot active" data-label="Vision" onclick="scrollToSlide(0)"></div>
+        <div class="dot" data-label="Problem" onclick="scrollToSlide(1)"></div>
+        <div class="dot" data-label="Meshkid" onclick="scrollToSlide(2)"></div>
+        <div class="dot" data-label="Ecosystem" onclick="scrollToSlide(3)"></div>
+        <div class="dot" data-label="Backbone" onclick="scrollToSlide(4)"></div>
+        <div class="dot" data-label="Revenue" onclick="scrollToSlide(5)"></div>
+        <div class="dot" data-label="Applications" onclick="scrollToSlide(6)"></div>
+        <div class="dot" data-label="Valuation" onclick="scrollToSlide(7)"></div>
+        <div class="dot" data-label="Leadership" onclick="scrollToSlide(8)"></div>
+        <div class="dot" data-label="Roadmap" onclick="scrollToSlide(9)"></div>
     </div>
 
-    <div id="portal-container">
-        <div class="portal-header">
-            <h2>POPPMESH X: Confidential Deck</h2>
-            <p>Building the mind of the user. Establishing the ultimate off-grid infrastructure.</p>
+    <div id="gate-container">
+        <div class="gate-card">
+            <h1>POPP<span>MESH</span></h1>
+            <div class="gate-tagline">Where there is no network, we POP the mesh</div>
+            <input type="password" id="passInput" class="password-input" placeholder="ACCESS KEY" onkeypress="if(event.keyCode==13)checkPassword()" autocomplete="off">
+            <button class="submit-btn" onclick="checkPassword()">Initialize</button>
+        </div>
+    </div>
+
+    <div id="deck-container" onscroll="updateRoadmap()">
+        <div class="slide">
+            <h2>The End of the Carrier</h2>
+            <p>Traditional telecom is a $1.7 Trillion dinosaur. <span class="highlight">POPPMESH</span> is building the decentralized hardware layer that makes the cell tower obsolete.</p>
+            <div class="source-tag">Source: GSMA Intelligence, Global Telecom Valuations</div>
+        </div>
+        
+        <div class="slide">
+            <h2>Hardware Sovereignty</h2>
+            <p>We aren't replacing a monopoly; we are <span class="highlight">freeing the people</span>. Owning the physical nodes removes the subscription trap forever.</p>
+            <div class="grid">
+                <div class="card">
+                    <h3>Free Local Loop</h3>
+                    <p>Why pay to text across the street? POPPMESH allows families to connect for free via autonomous, self-healing local node density.</p>
+                </div>
+                <div class="card">
+                    <h3>Surgical Infrastructure</h3>
+                    <p>12 satellites and 12 strategic relays. A lean, unkillable network protocol that completely bypasses corporate fiber.</p>
+                </div>
+            </div>
+            <div class="source-tag">Source: FCC Communications Marketplace Report</div>
         </div>
 
-        <div class="slide-preview">
-            <h3>1. The Hardware Architecture</h3>
-            <p>Moving from the ICE5LP1K FPGA foundation (Phase 1) to the ultimate 5.8 GHz LTE Killer. Custom modulation capabilities utilizing dedicated Mixers and 40-channel DACs.</p>
+        <div class="slide">
+            <h2>Phase 1: MeshKid</h2>
+            <p>The Trojan Horse for global infrastructure. Parents get peace of mind; kids get the thrill of physical connection.</p>
+            <div class="grid">
+                <div class="card">
+                    <h3>Tap-to-Connect (Patent Pending)</h3>
+                    <p><b>Proof of Physical Presence.</b> Kids only connect by physically tapping devices. Keys auto-delete every 7 weeks. Absolute safety from online predators, total freedom with real friends.</p>
+                </div>
+                <div class="card">
+                    <h3>The Viral Trojan Node</h3>
+                    <p><b>Profitable Customer Acquisition.</b> The social network effect drives organic adoption. Parents buy it for safety, kids use it for fun, and together they physically build our localized mesh density.</p>
+                </div>
+            </div>
+            <div class="source-tag">Source: USPTO / Pew Research Center (Youth Digital Safety)</div>
         </div>
 
-        <div class="slide-preview">
-            <h3>2. Cap Table & Leadership</h3>
-            <p>Detailed breakdown of strategic control, including the 8,000,000 shares retained by the founder, alongside operational leadership structures managed with Dipen.</p>
+        <div class="slide">
+            <h2>The Viral Ecosystem</h2>
+            <p>MeshKid establishes baseline density. As users grow, our ecosystem scales with them, locking in their social graph forever.</p>
+            <div class="grid">
+                <div class="card">
+                    <h3>MeshKid Pro (The Upgrade)</h3>
+                    <p><b>The Middle School Viral Effect.</b><br>Kids outgrow the elementary MeshKid and graduate to the Pro. Because their friends are on the Popp Protocol, they bring their entire social network with them, creating massive lock-in and viral expansion.</p>
+                </div>
+                <div class="card">
+                    <h3>PoppMesh X (The Flagship)</h3>
+                    <p><b>The Carrier Killer.</b><br>The ultimate smartphone built for everyone. By the time our users reach adulthood, they won't buy an Apple or Samsung device—they will buy the PoppMesh X to stay connected globally with zero cellular bills.</p>
+                </div>
+            </div>
+            <div class="source-tag">Source: Metcalfe's Law of Network Externalities</div>
         </div>
 
-        <div class="slide-preview">
-            <h3>3. Go-To-Market & Defense Applications</h3>
-            <p>Immediate applications for Department of Defense Ad-Hoc Tactical Networks, Space Exploration, and autonomous Robotics communication.</p>
+        <div class="slide">
+            <h2>The 20Gbps Laser Backbone</h2>
+            <p>Connecting hubs like LA to SF requires 10 strategic towers, not 1,000 masts. Our architecture utilizes <span class="highlight">Dual-Relay Synchronization</span> for zero-latency failover.</p>
+            <div class="grid">
+                <div class="card">
+                    <h3>Fluid Backbone</h3>
+                    <p>Human movement is our architecture. Commuter vehicles act as surface nodes, while <b>commercial airlines act as high-altitude fluid relays</b> sweeping data across continents, offering free text access to passengers in return.</p>
+                </div>
+                <div class="card">
+                    <h3>Static Reliability</h3>
+                    <p>High-altitude fixed relays bridge the quadrants using <b>40-mile point-to-point optical beams</b>. This provides the permanent, extreme-bandwidth "spine" of the global mesh.</p>
+                </div>
+            </div>
+            <div class="source-tag">Source: IEEE E-Band RF Physics / FAA In-Flight Connectivity</div>
         </div>
 
-        <div class="download-section">
-            <button class="submit-btn" onclick="alert('This will link to the PDF download!')">Download Full Deck (.PDF)</button>
+        <div class="slide">
+            <h2>The Monetization Engine</h2>
+            <p>We do not charge consumer subscriptions. Our users build the network for us, and the enterprise pays to use it.</p>
+            <div class="grid-3">
+                <div class="card">
+                    <h3>1. Hardware Wedge</h3>
+                    <p>Profitable Customer Acquisition. Selling MeshKid, Pro, and PoppMesh X generates immediate cash flow while rapidly scaling our physical network footprint.</p>
+                </div>
+                <div class="card">
+                    <h3>2. B2B IoT Routing</h3>
+                    <p>Once local density is achieved, delivery fleets, autonomous robotics, and smart-city sensors pay PoppMesh micro-cents per packet to bypass expensive cellular rates.</p>
+                </div>
+                <div class="card">
+                    <h3>3. Protocol Licensing</h3>
+                    <p>We become the "Android of Radio." We license the proprietary Popp Protocol and Edge-AI compression to third-party manufacturers to run on their hardware.</p>
+                </div>
+            </div>
+            <div class="source-tag">Source: McKinsey Global IoT Market Analysis</div>
+        </div>
+        
+        <div class="slide">
+            <h2>Beyond the Consumer</h2>
+            <p>A decentralized, unkillable mesh isn't just for smartphones. It is the baseline architecture for the future of sovereign routing.</p>
+            <div class="grid">
+                <div class="card">
+                    <h3>Defense & Robotics</h3>
+                    <p>When GPS and cellular towers are compromised, the Popp Protocol provides autonomous swarms and military ground units with an unbreakable, sovereign communication layer.</p>
+                </div>
+                <div class="card">
+                    <h3>Interplanetary Sovereignty</h3>
+                    <p>Standard internet (TCP/IP) fails across the 20-minute light-speed delay to Mars. Our "store-and-forward" mesh bypasses this, making PoppMesh the required architecture for the deep-space internet.</p>
+                </div>
+            </div>
+            <div class="source-tag">Source: NASA Jet Propulsion Laboratory (JPL) DTN Specs</div>
+        </div>
+
+        <div class="slide">
+            <h2>The Trillion-Dollar Horizon</h2>
+            <div class="grid">
+                <div class="card">
+                    <h3>2036: Exit Velocity</h3>
+                    <p>150M+ users off the grid. Established as the primary carrier for the billing-free generation. Targeted $500B+ infrastructure valuation.</p>
+                </div>
+                <div class="card">
+                    <h3>2046: Global Utility</h3>
+                    <p>The World Mesh is complete. A sovereign, decentralized backbone for Earth and deep space. <br><br><b>Targeted $3T+ Interplanetary Infrastructure Valuation.</b></p>
+                </div>
+            </div>
+            <div class="source-tag">Source: POPPMESH Internal Projections</div>
+        </div>
+
+        <div class="slide">
+            <h2>System Architects</h2>
+            <div class="grid">
+                <div class="card">
+                    <h3 style="color: var(--primary);">Joseph Khan | Founder & CEO</h3>
+                    <p><b>MBA & B.S. Mechanical Engineering.</b> Hardware/RF Lead & AI Architect. Expert in Altium, FPGA programming, and System Logic. I build the body and the mind.</p>
+                </div>
+                <div class="card">
+                    <h3 style="color: #fff;">Dipen Joshi | CTO</h3>
+                    <p><b>B.S. Computer Science.</b> 7 years in Fintech, 3 years in Blockchain architecture. Core engineer of MeshOS and Popp Protocol execution. He builds the nervous system.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="slide">
+            <h2>12-Month Deployment</h2>
+            <div class="grid">
+                <div class="card">
+                    <h3>Months 1-6: Physical/Digital Sync</h3>
+                    <p><b>Hardware (Joseph):</b> Finalizing device body, Altium PCBA, and RF tuning. <br><br><b>Software (Dipen):</b> Hardening MeshOS. Alpha testing handheld units in closed environments.</p>
+                </div>
+                <div class="card">
+                    <h3>Months 7-12: The LA Cluster</h3>
+                    <p>PCBA and case manufacturing. Full-scale commercial launch into targeted Los Angeles school clusters to hit critical density.</p>
+                </div>
+            </div>
         </div>
     </div>
 
     <script>
         function checkPassword() {
-            var input = document.getElementById("passInput").value;
-            var gate = document.getElementById("gate-container");
-            var portal = document.getElementById("portal-container");
-            var error = document.getElementById("error-msg");
-
-            // Check against the requested password
-            if (input === "poppitup2030") {
-                gate.style.display = "none";
-                portal.style.display = "block";
-            } else {
-                error.style.display = "block";
-                document.getElementById("passInput").value = ""; // clear the input
+            if (document.getElementById("passInput").value.toLowerCase() === "popp") {
+                const gate = document.getElementById("gate-container");
+                gate.style.opacity = "0";
+                setTimeout(() => {
+                    gate.style.display = "none";
+                    document.getElementById("deck-container").style.display = "block";
+                    document.getElementById("header").style.display = "block";
+                    document.getElementById("roadmap").style.display = "flex";
+                }, 800);
+            } else { 
+                alert("DENIED.");
             }
         }
 
-        // Allow pressing "Enter" on the keyboard to submit
-        function handleKeyPress(e) {
-            if (e.keyCode === 13) {
-                checkPassword();
-            }
+        function scrollToSlide(index) {
+            const container = document.getElementById("deck-container");
+            const slideHeight = window.innerHeight;
+            container.scrollTo({ top: index * slideHeight, behavior: 'smooth' });
         }
+
+        function updateRoadmap() {
+            const container = document.getElementById("deck-container");
+            const index = Math.round(container.scrollTop / window.innerHeight);
+            const dots = document.querySelectorAll('.dot');
+            dots.forEach((dot, i) => dot.classList.toggle('active', i === index));
+        }
+
+        const canvas = document.getElementById('bg-canvas');
+        const ctx = canvas.getContext('2d');
+        let width, height, clusters = [], satellites = [], staticRelays = [], cars = [];
+
+        function initCanvas() {
+            resize();
+            animate();
+        }
+
+        function resize() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+            setupArchitecture();
+        }
+
+        function setupArchitecture() {
+            clusters = []; staticRelays = []; cars = [];
+            const centers = [
+                {x:width*.25,y:height*.25}, {x:width*.75,y:height*.25}, 
+                {x:width*.25,y:height*.75}, {x:width*.75,y:height*.75}
+            ];
+            
+            centers.forEach(c => {
+                let nodes = [];
+                for(let i=0; i<18; i++) nodes.push({ ox:(Math.random()-.5)*150, oy:(Math.random()-.5)*150, size:Math.random()*1.5+1 });
+                clusters.push({x:c.x, y:c.y, nodes});
+            });
+
+            // Dual relays per backbone path
+            staticRelays.push(
+                {x:width*.4,y:height*.25}, {x:width*.6,y:height*.25}, // Top
+                {x:width*.4,y:height*.75}, {x:width*.6,y:height*.75}, // Bottom
+                {x:width*.25,y:height*.4}, {x:width*.25,y:height*.6}, // Left
+                {x:width*.75,y:height*.4}, {x:width*.75,y:height*.6}  // Right
+            );
+
+            const routes = [[0,1],[1,0], [1,3],[3,1], [3,2],[2,3], [2,0],[0,2]];
+            for(let i=0; i<20; i++) {
+                const route = routes[i % routes.length];
+                cars.push({ start:centers[route[0]], end:centers[route[1]], progress:Math.random(), speed:0.0004+Math.random()*0.0003 });
+            }
+
+            satellites = [];
+            for(let i=0; i<4; i++) satellites.push({ angle:(i/4)*Math.PI*2, radius:Math.min(width,height)*0.48, speed:0.0015, size:3 });
+        }
+
+        function animate() {
+            ctx.fillStyle = 'rgba(2, 4, 10, 0.4)';
+            ctx.fillRect(0, 0, width, height);
+            const time = Date.now() * 0.0008;
+
+            // Draw Backbone ground connections
+            ctx.lineWidth = 1; ctx.strokeStyle = `rgba(0, 229, 255, 0.08)`;
+            ctx.beginPath();
+            ctx.moveTo(width*.25, height*.25); ctx.lineTo(width*.75, height*.25); // Top
+            ctx.moveTo(width*.25, height*.75); ctx.lineTo(width*.75, height*.75); // Bottom
+            ctx.moveTo(width*.25, height*.25); ctx.lineTo(width*.25, height*.75); // Left
+            ctx.moveTo(width*.75, height*.25); ctx.lineTo(width*.75, height*.75); // Right
+            ctx.stroke();
+
+            // Local Nodes
+            clusters.forEach(c => c.nodes.forEach((n, i) => {
+                const nx = c.x + n.ox + Math.sin(time * 0.2 + i) * 5; 
+                const ny = c.y + n.oy + Math.cos(time * 0.2 + i) * 5;
+                ctx.beginPath(); ctx.arc(nx,ny,n.size,0,Math.PI*2); 
+                ctx.fillStyle = `rgba(0, 229, 255, ${0.3 + Math.sin(time + i)*0.2})`; 
+                ctx.fill();
+            }));
+
+            // Fluid Backbone (Cars)
+            cars.forEach(car => {
+                car.progress += car.speed; if(car.progress > 1) car.progress = 0;
+                const cx = car.start.x + (car.end.x - car.start.x)*car.progress;
+                const cy = car.start.y + (car.end.y - car.start.y)*car.progress;
+                ctx.beginPath(); ctx.arc(cx,cy,2,0,Math.PI*2); 
+                ctx.fillStyle = `rgba(255,255,255,0.9)`; 
+                ctx.shadowBlur = 10; ctx.shadowColor = '#fff';
+                ctx.fill();
+                ctx.shadowBlur = 0; 
+            });
+
+            // Static Relays (Dual)
+            staticRelays.forEach((r, i) => {
+                const pulse = (Math.sin(time*1.5 + i)+1)*4; 
+                ctx.beginPath(); ctx.arc(r.x,r.y,5+pulse,0,Math.PI*2);
+                ctx.strokeStyle = `rgba(0, 229, 255, 0.4)`; ctx.stroke();
+                ctx.beginPath(); ctx.arc(r.x,r.y,3,0,Math.PI*2); 
+                ctx.fillStyle = '#fff'; ctx.fill();
+            });
+
+            // Satellites WITH LASER LINKS to the nearest relay
+            satellites.forEach(s => {
+                s.angle += s.speed;
+                const sx = (width/2)+Math.cos(s.angle)*s.radius, sy = (height/2)+Math.sin(s.angle)*s.radius;
+                
+                // Find nearest ground relay
+                let nearest = staticRelays.reduce((prev, curr) => 
+                    Math.hypot(sx-prev.x, sy-prev.y) < Math.hypot(sx-curr.x, sy-curr.y) ? prev : curr);
+
+                // Draw the laser beam
+                ctx.beginPath(); 
+                ctx.moveTo(sx, sy); 
+                ctx.lineTo(nearest.x, nearest.y);
+                ctx.strokeStyle = `rgba(0, 229, 255, ${0.05 + Math.random()*0.15})`; // Flickering laser
+                ctx.lineWidth = 1.5; 
+                ctx.stroke();
+
+                // Draw the satellite body
+                ctx.beginPath();
+                ctx.arc(sx, sy, s.size, 0, Math.PI * 2);
+                ctx.fillStyle = '#fff';
+                ctx.shadowBlur = 15;
+                ctx.shadowColor = '#00e5ff';
+                ctx.fill();
+                ctx.shadowBlur = 0;
+            });
+
+            requestAnimationFrame(animate);
+        }
+
+        window.addEventListener('resize', resize);
     </script>
-
 </body>
 </html>
