@@ -183,21 +183,21 @@
         .kid-keyboard { display: grid; grid-template-columns: repeat(10, 1fr); gap: 5px; }
         .key { background: #111; border-radius: 3px; height: 20px; border: 1px solid #1e293b; }
 
-        /* ALIGNMENT STYLES */
+        /* FIXED ALIGNMENT STYLES */
         .device-text { text-align: left; }
-        .spec-list { list-style: none; padding: 0; margin: 1.5rem 0; color: var(--fg); font-weight: 600; font-size: 0.95rem; }
+        .spec-list { list-style: none; padding: 0; margin: 1.5rem 0; color: var(--fg); font-size: 0.95rem; }
         .spec-list li { 
             margin-bottom: 1.2rem; 
-            display: flex; 
-            align-items: flex-start; 
-            gap: 0.8rem; 
+            display: grid; 
+            grid-template-columns: 24px 1fr; /* Ensures checkmark has its own fixed column */
+            gap: 0.5rem; 
             line-height: 1.4;
+            align-items: start;
         }
         .spec-list li::before { 
             content: '✓'; 
             color: var(--accent); 
-            flex-shrink: 0;
-            margin-top: 2px;
+            font-weight: 800;
         }
 
         .signature-art svg { margin-top: 2rem; width: 220px; filter: drop-shadow(0 0 10px rgba(0, 240, 255, 0.4)); }
@@ -210,7 +210,6 @@
             .manifesto-body { border-left: none; padding-left: 0; text-align: center; }
             .leadership-header { text-align: center; }
             section { min-height: 100vh; padding: 10vh 10%; }
-            .spec-list li { justify-content: flex-start; text-align: left; }
         }
     </style>
 </head>
@@ -259,30 +258,30 @@
         
         <div class="leadership-grid">
             <div class="leader-card">
-    <div class="leader-img-wrapper">
-        <img src="joseph.jpg" alt="Joseph Khan">
-    </div>
-    <h3>Joseph Khan, MBA</h3>
-    <p class="title">Founder, CEO & Chief Architect</p>
-    <p class="creds">
-        B.S. Mechanical Engineering | 10+ Years Experience<br>
-        <strong>3+ Years Radio Frequency Systems</strong><br>
-        <strong>Ex-SpaceX Engineer | Ground Station</strong>
-    </p>
-</div>
+                <div class="leader-img-wrapper">
+                    <img src="joseph.jpg" alt="Joseph Khan">
+                </div>
+                <h3>Joseph Khan, MBA</h3>
+                <p class="title">Founder, CEO & Chief Architect</p>
+                <p class="creds">
+                    B.S. Mechanical Engineering | 10+ Years Experience<br>
+                    <strong>3+ Years Radio Frequency Systems</strong><br>
+                    <strong>Ex-SpaceX Engineer | Ground Station</strong>
+                </p>
+            </div>
             
             <div class="leader-card">
-    <div class="leader-img-wrapper">
-        <img src="dipen.jpg" alt="Dipen Joshi">
-    </div>
-    <h3>Dipen Joshi</h3>
-    <p class="title">Founding Technical Advisor</p>
-    <p class="creds">
-       B.S. Computer Science | 15+ Years Experience<br>
-        <strong>Senior Lead, Green Dot</strong><br>
-        <strong>Former CTO, Spl.yt (Science Inc. Portfolio)</strong>
-    </p>
-</div>
+                <div class="leader-img-wrapper">
+                    <img src="dipen.jpg" alt="Dipen Joshi">
+                </div>
+                <h3>Dipen Joshi</h3>
+                <p class="title">Founding Technical Advisor</p>
+                <p class="creds">
+                   B.S. Computer Science | 15+ Years Experience<br>
+                    <strong>Senior Lead, Green Dot</strong><br>
+                    <strong>Former CTO, Spl.yt (Science Inc. Portfolio)</strong>
+                </p>
+            </div>
         </div>
     </section>
 
@@ -299,13 +298,13 @@
     <section class="grid">
         <div class="device-text">
             <h2>PoppMesh X1</h2>
-<p style="color: var(--soft-gray);">Professional-grade sovereign handsets built for absolute privacy. A self-sustaining connection powered by PoppMesh.</p>
-<ul class="spec-list">
-    <li><strong>Zero Subscription:</strong> No monthly fees. Data costs are offset by contributing to the network.</li>
-    <li><strong>End-to-End Encryption:</strong> Zero-knowledge architecture; only you and the recipient hold the keys.</li>
-    <li><strong>72-Hour Endurance:</strong> multi-day battery life.</li>
-    <li><strong>Hybrid Connectivity:</strong> Native sovereign mesh with legacy SIM support for total resilience.</li>
-</ul>
+            <p style="color: var(--soft-gray);">Professional-grade sovereign handsets built for absolute privacy. A self-sustaining connection powered by PoppMesh.</p>
+            <ul class="spec-list">
+                <li><span><strong>Zero Subscription:</strong> No monthly fees. Data costs are offset by contributing to the network.</span></li>
+                <li><span><strong>End-to-End Encryption:</strong> Zero-knowledge architecture; only you and the recipient hold the keys.</span></li>
+                <li><span><strong>72-Hour Endurance:</strong> multi-day battery life.</span></li>
+                <li><span><strong>Hybrid Connectivity:</strong> Native sovereign mesh with legacy SIM support for total resilience.</span></li>
+            </ul>
         </div>
         <div class="device-visual">
             <div class="phone-mock"></div>
@@ -320,9 +319,9 @@
             <h2>The Relay</h2>
             <p style="color: var(--soft-gray);">The backbone of the grid. Long-range transit nodes bridging neighborhood clusters to the global network. Powered by PoppMesh.</p>
             <ul class="spec-list">
-                <li><strong>Directional SDR:</strong> Proprietary transmitters and receivers send powerful beams miles away.</li>
-                <li><strong>Gateway to ISP & IPFS:</strong> Bridges sovereign clusters to the global web and decentralized storage.</li>
-                <li><strong>Proof of Transmission (PoT):</strong> Earn tokens for every packet relayed across the mesh.</li>
+                <li><span><strong>Directional SDR:</strong> Proprietary transmitters and receivers send powerful beams miles away.</span></li>
+                <li><span><strong>Gateway to ISP & IPFS:</strong> Bridges sovereign clusters to the global web and decentralized storage.</span></li>
+                <li><span><strong>Proof of Transmission (PoT):</strong> Earn tokens for every packet relayed across the mesh.</span></li>
             </ul>
         </div>
     </section>
@@ -334,14 +333,14 @@
                 The Sovereign Data Layer: Decentralizing the internet backbone through IPFS content-based routing.
             </p>
             <ul class="spec-list">
-                <li><span><strong>Native IPFS Integration:</strong> Retrieves data from the nearest peer by content hash, eliminating the latency of distant centralized servers.</span></li>
-                <li><span><strong>Sovereign ISP Gateways:</strong> High-speed relays provide unrestricted access to the legacy web while bridging traffic into the mesh.</span></li>
-                <li><span><strong>Hybrid Architecture:</strong> Seamlessly switches between local P2P speeds for mesh content and distributed gateways for global reach.</span></li>
-                <li><span><strong>Proof of Transmission (PoT):</strong> Real-time token minting; every 1MB of verified data transit rewards node operators in PoppTokens.</span></li>
-                <li><strong>Anti-Abuse Logic:</strong> Protocol-level balance ensures network resources are earned, not exploited.</li>
+                <li><span><strong>Native IPFS Integration:</strong> Retrieves data from the nearest peer by content hash, eliminating latency.</span></li>
+                <li><span><strong>Sovereign ISP Gateways:</strong> High-speed relays provide unrestricted access to the legacy web.</span></li>
+                <li><span><strong>Hybrid Architecture:</strong> Seamlessly switches between local P2P and global gateways.</span></li>
+                <li><span><strong>Proof of Transmission (PoT):</strong> Real-time token minting for verified data transit.</span></li>
+                <li><span><strong>Anti-Abuse Logic:</strong> Protocol-level balance ensures network resources are earned.</span></li>
             </ul>
         </div>
-        <div class="device-visual" id="next-gen-visual" style="position: relative;">
+        <div class="device-visual" id="next-gen-visual">
             <canvas id="nextGenCanvas" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border-radius: 16px;"></canvas>
         </div>
     </section>
@@ -349,13 +348,13 @@
     <section class="grid">
         <div class="device-text">
             <h2>MeshKID</h2>
-<p style="color: var(--soft-gray);">Sovereign communication for the next generation. A closed-loop safe-zone prioritizing security and human connection.</p>
-<ul class="spec-list">
-    <li><strong>Guardian Protocol:</strong> Patent-pending stranger removal technology keeps the network friends and family-only.</li>
-    <li><strong>Zero-Cloud Privacy:</strong> Direct peer-to-peer encryption with no data mining or central servers.</li>
-    <li><strong>Digital Sovereignty:</strong> No tracking, no ads, and no hidden subscriptions.</li>
-    <li><strong>Built to Last:</strong> Ruggedized hardware with the same long-range HaLow resilience as the X1.</li>
-</ul>
+            <p style="color: var(--soft-gray);">Sovereign communication for the next generation. A closed-loop safe-zone prioritizing security and human connection.</p>
+            <ul class="spec-list">
+                <li><span><strong>Guardian Protocol:</strong> Patent-pending stranger removal technology keeps the network safe.</span></li>
+                <li><span><strong>Zero-Cloud Privacy:</strong> Direct peer-to-peer encryption with no data mining.</span></li>
+                <li><span><strong>Digital Sovereignty:</strong> No tracking, no ads, and no hidden subscriptions.</span></li>
+                
+            </ul>
         </div>
         <div class="device-visual">
             <div class="kid-mock">
@@ -384,6 +383,7 @@
     <div class="footer">© 2026 POPPMESH. BUILT FOR EARTH AND BEYOND.</div>
 
     <script>
+        // JS remains largely the same, ensuring responsiveness for the canvas elements
         if ('scrollRestoration' in history) { history.scrollRestoration = 'manual'; }
         window.scrollTo(0, 0);
 
@@ -461,7 +461,7 @@
 
         initIntroGrid(); 
         animateIntroMesh();
-        setTimeout(() => { mapBg.style.opacity = '0.07'; }, 200);
+        setTimeout(() => { if(mapBg) mapBg.style.opacity = '0.07'; }, 200);
 
         const nextGenCanvas = document.getElementById('nextGenCanvas');
         const ctxNext = nextGenCanvas.getContext('2d');
@@ -485,6 +485,7 @@
         const CONNECTIVITY_RADIUS = 192; 
 
         function resizeNextGenCanvas() {
+            if (!nextGenVisualContainer) return;
             nextGenCanvas.width = nextGenVisualContainer.clientWidth; 
             nextGenCanvas.height = nextGenVisualContainer.clientHeight;
             updateStaticNodes();
@@ -552,12 +553,6 @@
             ctxNext.roundRect(-w/2 + 2, -h/2 + 3, w - 4, h - 12, 2);
             ctxNext.fill();
 
-            ctxNext.fillStyle = primary;
-            ctxNext.beginPath();
-            ctxNext.arc(0, h/2 - 4, 1.5, 0, Math.PI * 2);
-            ctxNext.fill();
-
-            /* REWARD ICON UPDATED TO CYAN GLOW */
             if (node.rewardTimer > 0) {
                 ctxNext.restore();
                 ctxNext.save();
@@ -579,21 +574,11 @@
             if (!activePacket && timestamp - lastJumpTime > 2000) {
                 lastJumpTime = timestamp;
                 nextNodes.forEach(n => { n.isRed = false; n.isBlue = false; });
-
                 requesterNode = nextNodes[Math.floor(Math.random() * nextNodes.length)];
-                do {
-                    providerNode = nextNodes[Math.floor(Math.random() * nextNodes.length)];
-                } while (providerNode === requesterNode);
-
+                do { providerNode = nextNodes[Math.floor(Math.random() * nextNodes.length)]; } while (providerNode === requesterNode);
                 requesterNode.isRed = true;
                 providerNode.isBlue = true;
-
-                activePacket = {
-                    current: providerNode,
-                    target: requesterNode,
-                    progress: 0,
-                    path: [providerNode.id]
-                };
+                activePacket = { current: providerNode, target: requesterNode, progress: 0, path: [providerNode.id] };
             }
 
             nextEdges.forEach(e => {
@@ -603,7 +588,6 @@
 
             if (activePacket) {
                 activePacket.progress += 0.05;
-                
                 let possibleNext = activePacket.current.neighbors.filter(n => !activePacket.path.includes(n.id));
                 let nextNode = possibleNext.sort((a, b) => 
                     Math.hypot(a.x - activePacket.target.x, a.y - activePacket.target.y) - 
@@ -612,20 +596,11 @@
 
                 if (activePacket.progress >= 1) {
                     activePacket.current.isBlue = true;
-                    if (activePacket.current !== requesterNode) {
-                        activePacket.current.rewardTimer = 20;
-                    }
-                    
+                    if (activePacket.current !== requesterNode) activePacket.current.rewardTimer = 20;
                     activePacket.current = nextNode;
                     activePacket.path.push(nextNode.id);
                     activePacket.progress = 0;
-
-                    if (activePacket.current === activePacket.target) {
-                        activePacket.target.isRed = false;
-                        activePacket.target.isBlue = true;
-                        activePacket = null;
-                        lastJumpTime = timestamp;
-                    }
+                    if (activePacket.current === activePacket.target) { activePacket = null; lastJumpTime = timestamp; }
                 }
 
                 if (activePacket) {
