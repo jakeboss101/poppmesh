@@ -5,15 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PoppMesh | Sovereign Connection</title>
     <style>
-        /* Import Inter font for clean typography */
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap');
 
-        /* Root color variables for consistent theming */
         :root {
             --bg-deep: #020a1a;
             --bg-accent: #04122d;
             --fg: #f0f4f8;
-            --accent: #00f0ff; 
+            --accent: #00f0ff;
             --filecoin-blue: #0090ff;
             --soft-gray: #94a3b8;
             --border: rgba(255, 255, 255, 0.1);
@@ -21,18 +19,21 @@
             --hw-shadow: rgba(0, 144, 255, 0.15);
         }
 
-        /* Base body styles */
+        html {
+            scroll-snap-type: y proximity;
+            scroll-behavior: smooth;
+        }
+
         body {
             margin: 0; 
             background-color: var(--bg-deep); 
-            color: var(--fg);
+            color: var(--fg); 
             font-family: 'Inter', sans-serif; 
-            -webkit-font-smoothing: antialiased;
+            -webkit-font-smoothing: antialiased; 
             overflow-x: hidden; 
-            line-height: 1.6;
+            line-height: 1.6; 
         }
 
-        /* Overlay container for the initial animation */
         #web-overlay {
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
             background-color: var(--bg-deep); z-index: 9999;
@@ -41,26 +42,33 @@
             overflow: hidden;
         }
 
-        /* World Map Background */
         .map-bg {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background-image: url('map.png');
+            background-size: cover;
+            background-position: center;
+            opacity: 0; 
+            z-index: 1;
+            transition: opacity 1.5s ease-in-out; 
+        }
+
+        #overlay-logo {
             position: absolute;
             top: 50%; left: 50%;
             transform: translate(-50%, -50%);
-            width: 100vw;
-            height: 100vh;
-            /* Stylized world map SVG encoded as background */
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1008 651'%3E%3Cpath fill='rgba(0, 144, 255, 0.1)' d='M224 163c-7-2-12 1-14 4-2 3-5 5-8 5-3 1-5 4-5 7 0 5-6 11-10 10-3 0-5 3-5 7 0 2-4 2-5 0-2-3-7-3-11-2-6 2-10 7-9 12 1 4-1 9-3 13-2 5-6 9-6 13 0 2-4 3-6 3-2 0-3 2-2 4 2 2-2 4-5 2-4-2-7-1-7 2 0 4-4 8-6 10-2 2-1 6 2 8 4 2 5 7 2 9-1 1-3 1-4 0-1-1-3 0-3 3 0 2-3 4-5 2-2-1-4-2-4-4 0-2-2-4-4-5-4-1-6-5-5-9 0-3-2-6-4-7-2-1-5 0-5 3 0 2-3 4-6 4-3 0-5-3-3-5 1-2 1-5 0-6-1-1-4-1-5 1s-4 1-5-1c-1-2-1-5 2-6 1-1 1-2-1-3-2-1-2-3 0-4 1-1 1-4-1-5-1-1 0-3 2-4 2-1 4-3 3-5-1-2-1-5 2-6 1-1 0-4-3-5-4-1-7-3-7-6 0-1 3-3 5-2 3 1 7-2 7-4 0-2-4-4-7-4-3 0-5-2-4-5 1-2-2-3-4-2-1 1-4 1-5-1-1-2-3-3-3-5s3-5 6-5c2 0 3-2 2-5-2-3 2-6 6-5 4 1 6-1 6-4 0-2-3-3-5-3-2 0-3-2-2-4 1-2-2-3-4-2-3 1-4-1-4-4 0-2 2-5 5-6 2-1 3-4 1-6-2-2-1-4 2-4 2 0 5-2 5-4s2-4 5-5c2-1 3-4 1-5-1-1 1-3 3-3 2 0 4-2 4-4 0-3 2-5 5-4 4 1 6-1 7-4 1-2 5-3 7-2 3 1 5 1 5-2 1-2-1-4-3-4-2-1-2-4-1-6 1-2 4-2 6-1 3 1 5-1 5-4 0-3 3-5 5-4 2 0 4 2 5 5 2 4 6 5 9 1 3-3 8-4 11-1 2 2 6 2 8 1 2-1 5-1 6 1 1 1 5 1 6 0s2-4 3-7c1-2 5-3 7-2 2 1 3-1 2-4-2-2 1-5 4-4 3 1 6-1 5-3 0-1 2-3 4-2 1 1 4 0 4-3 0-1 2-2 4-2 1 0 3-2 3-4 0-3 3-5 5-3 3 2 7 1 7-2s4-3 7-3c3 0 5-2 5-5 0-3 2-5 5-4 2 1 5 0 5-3 0-2 2-5 4-6 2-1 5 0 6 3 2 3 6 4 9 1 3-3 8-3 10-1 3 3 7 3 9 0 3-4 9-3 13 3 3 4 5 7 4 11-1 3-1 7 1 10 2 2 2 5 0 6s-4 4-5 5c-1 2 0 5 2 6 1 1 3 4 2 6-1 2-1 5 2 6 3 2 3 5 0 7-3 2-4 6-2 9 3 4 3 8-1 10-3 2-4 5-3 7s4 4 6 4 3 2 1 5c-1 2 0 5 2 6 3 1 4 5 3 7s1 5 4 6c3 2 4 5 2 7-1 2 0 4 3 4 2 0 4 2 4 5s3 4 5 4 4 2 3 5c-1 2-1 6 1 7s5 4 5 6c0 2 2 5 5 5s4 3 4 7c0 4 1 6 4 6s5 2 5 4-2 5-5 5-4 2-3 5c1 2 4 3 6 2 1-1 4-1 5-1 0 0 3 2 6 5 2 2 5 3 6 3 1 0 3 2 4 5 1 4 1 6-1 7-2 2-3 5-2 8s3 5 5 5 4 3 4 7c0 3 2 5 4 5 3 0 4 3 3 5-1 3-1 6 1 8 2 2 2 4 1 6-1 2 0 5 3 6 2 2 3 4 1 6s-1 5 2 6 5 2 5 5 1 5 4 5 4 0 5 3 2 5 3 7c2 1 2 4 0 6s-2 5-1 6 2 4 0 6-2 5 0 7c2 2 2 4 1 5-2 2-3 4-2 6 2 3 2 6 0 8s0 5 3 6 4 3 2 5-1 4 2 6c3 2 5 3 4 5-2 3-2 6 0 8s0 5 3 6 4 3 2 5-1 4 2 6c3 2 5 3 4 5-2 3-1 5 1 6 3 1 4 4 2 6s0 5 3 6 4 3 2 5-1 4 2 6c3 2 5 3 4 5-2 2-2 5-1 6s4 3 4 5c0 3 2 4 4 3 2-1 4-1 5 0 1 1 1 4-1 5-2 1-3 4-1 5 1 2 4 2 6 1 3-1 6 0 6 3s3 4 5 3c1-1 4-1 5 0 1 1 1 4-1 5-2 2-3 4-2 6s3 4 5 3c2-1 4-1 5 0 1 1 1 4-1 5-2 2-2 5-1 6s4 3 4 5c0 3 2 4 4 3 2-1 4-1 5 0 1 1 1 4-1 5-2 2-3 4-2 6s3 4 5 3c2-1 4-1 5 0 1 1 1 4-1 5-2 2-2 5-1 6s4 3 4 5c0 3 2 4 4 3 2-1 4-1 5 0 1 1 1 4-1 5-2 2-3 4-2 6s3 4 5 3c2-1 4-1 5 0 1 1 1 4-1 5-2 2-2 5-1 6s4 3 4 5c0 3 2 4 4 3 2-1 4-1 5 0 1 1 1 4-1 5-2 2-3 4-2 6s3 4 5 3c2-1 4-1 5 0 1 1 1 4-1 5zM852 143c-3-2-5-5-3-7 1-2 1-5-1-6-1-1-4-1-6 0-3 1-5 1-6-1-1-2-1-5 1-7s4-3 5-1c1 2 4 2 6 1 3-1 5-1 6 1 1 2 1 5-1 6-2 1-3 4-1 6 1 2 4 2 6 1 3-1 6 0 6 3s3 4 5 3c1-1 4-1 5 0 1 1 1 4-1 5-2 2-3 4-2 6s3 4 5 3c2-1 4-1 5 0 1 1 1 4-1 5-2 2-2 5-1 6s4 3 4 5c0 3 2 4 4 3 2-1 4-1 5 0 1 1 1 4-1 5-2 2-3 4-2 6s3 4 5 3c2-1 4-1 5 0 1 1 1 4-1 5-2 2-2 5-1 6s4 3 4 5c0 3 2 4 4 3 2-1 4-1 5 0 1 1 1 4-1 5-2 2-3 4-2 6s3 4 5 3c2-1 4-1 5 0 1 1 1 4-1 5z'/%3E%3C/svg%3E");
-            background-size: contain;
-            background-position: center;
-            background-repeat: no-repeat;
-            opacity: 0.4;
-            pointer-events: none;
+            width: 200px;
+            opacity: 0;
+            transition: opacity 1s ease-in-out;
+            z-index: 10;
         }
 
-        /* Canvas element for organic mesh */
-        #webCanvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 2; }
+        #webCanvas { 
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 2; 
+            transition: opacity 1s ease-in-out;
+        }
 
-        /* Deep background glow */
         .bg-glow {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: radial-gradient(circle at 80% 20%, rgba(0, 144, 255, 0.15), transparent 40%),
@@ -68,7 +76,6 @@
             z-index: -1; pointer-events: none;
         }
 
-        /* Top Navigation */
         nav {
             display: flex; justify-content: space-between; align-items: center;
             padding: 1.5rem 10%; position: fixed; width: 100%; box-sizing: border-box; z-index: 1000;
@@ -78,18 +85,37 @@
 
         .logo { font-weight: 800; font-size: 1.4rem; letter-spacing: -0.03em; color: var(--accent); }
 
-        /* Section Layout */
-        section { padding: 15vh 10%; border-bottom: 1px solid var(--border); }
-        
-        /* Hero Section */
-        .hero { height: 100vh; display: flex; flex-direction: column; justify-content: center; }
-        .hero h2 { font-size: 0.9rem; font-weight: 700; letter-spacing: 0.4em; text-transform: uppercase; color: var(--filecoin-blue); margin-bottom: 1.5rem; }
-        .hero h1 {
-            font-size: clamp(3.5rem, 8vw, 7rem); font-weight: 800; line-height: 1; letter-spacing: -0.04em; margin: 0;
-            background: linear-gradient(to bottom, #fff 40%, var(--soft-gray)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        .top-right-logo {
+            height: 40px;
+            width: auto;
+            object-fit: contain;
         }
 
-        /* Founder Intro */
+        section { 
+            padding: 15vh 10%; 
+            min-height: 80vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            box-sizing: border-box;
+            border-bottom: 1px solid var(--border); 
+            scroll-snap-align: start;
+        }
+        
+        .hero { min-height: 100vh; max-width: 1200px; }
+        .hero h2 { font-size: 0.9rem; font-weight: 700; letter-spacing: 0.4em; text-transform: uppercase; color: var(--filecoin-blue); margin-bottom: 1rem; }
+        .hero h1 {
+            font-size: clamp(2.5rem, 6vw, 5rem); font-weight: 800; line-height: 1.1; letter-spacing: -0.04em; margin: 0;
+            background: linear-gradient(to bottom, #fff 60%, var(--soft-gray)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        .hero .sub-heading {
+            font-size: clamp(1.2rem, 2.5vw, 2rem);
+            color: var(--soft-gray);
+            margin-top: 1.5rem;
+            font-weight: 300;
+            max-width: 800px;
+        }
+
         .founder-intro { display: flex; flex-direction: row; align-items: center; gap: 2.5rem; margin-bottom: 3rem; }
         .founder-avatar { 
             width: 140px; height: 140px; border-radius: 50%; 
@@ -101,47 +127,90 @@
         .founder-details strong { display: block; font-size: 1.8rem; color: #fff; line-height: 1.2; }
         .founder-details span { font-size: 0.9rem; color: var(--accent); text-transform: uppercase; letter-spacing: 0.15em; font-weight: 600; }
         
-        .manifesto-body { border-left: 2px solid var(--filecoin-blue); padding-left: 3rem; max-width: 900px; }
+        .manifesto-body { border-left: none; padding-left: 0; max-width: 900px; }
         .manifesto-body p { font-size: 1.4rem; color: var(--soft-gray); font-weight: 300; }
         .manifesto-body span { color: #fff; font-weight: 600; }
 
-        /* Problems Grid */
-        .problem-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; margin-top: 3rem; }
-        .problem-card { background: rgba(255,255,255,0.03); padding: 2.5rem; border: 1px solid var(--border); border-radius: 16px; position: relative; overflow: hidden; }
-        .problem-card h4 { color: var(--accent); margin-top: 0; font-size: 1.1rem; text-transform: uppercase; letter-spacing: 0.1em; }
-        .problem-card .stat { font-size: 2.5rem; font-weight: 800; color: #fff; display: block; margin: 0.5rem 0; }
-        .problem-card p { font-size: 0.95rem; color: var(--soft-gray); margin: 0; }
+        .leadership-header { text-align: left; margin-bottom: 4rem; }
+        .leadership-header h2 { font-size: 3rem; margin: 0; color: #fff; }
+        .leadership-header p { color: var(--accent); font-size: 1.2rem; margin-top: 0.5rem; font-weight: 400; max-width: 800px; }
+        
+        .leadership-grid { display: flex; justify-content: center; gap: 4rem; flex-wrap: wrap; margin-top: 2rem; }
+        .leader-card { text-align: center; max-width: 400px; flex: 1; min-width: 300px; }
+        
+        .leader-img-wrapper { 
+            width: 100%; 
+            aspect-ratio: 1 / 1; 
+            margin: 0 auto 1.5rem; 
+            border-radius: 24px; 
+            overflow: hidden; 
+            border: 2px solid var(--hw-border); 
+            box-shadow: 0 0 30px rgba(0,0,0,0.5);
+            background: #000;
+            position: relative;
+        }
 
-        /* Device Visuals */
+        .leader-img-wrapper img { 
+            width: 100%; height: 100%; object-fit: cover; object-position: center top;
+            filter: grayscale(80%) contrast(1.1) brightness(0.9); 
+            transition: filter 0.4s ease, transform 0.4s ease;
+        }
+
+        .leader-img-wrapper:hover img { 
+            filter: grayscale(0%) contrast(1) brightness(1); 
+            transform: scale(1.03);
+        }
+        
+        .leader-card h3 { margin: 0; font-size: 1.8rem; color: #fff; }
+        .leader-card .title { color: var(--accent); font-size: 1rem; margin: 0.5rem 0; font-weight: 600; }
+        .leader-card .creds { color: var(--soft-gray); font-size: 0.9rem; line-height: 1.6; }
+
+        .problem-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-top: 2rem; }
+        .problem-card { background: rgba(255,255,255,0.03); padding: 2rem; border: 1px solid var(--border); border-radius: 16px; position: relative; overflow: hidden; }
+        .problem-card h4 { color: var(--accent); margin-top: 0; font-size: 1.1rem; text-transform: uppercase; letter-spacing: 0.1em; }
+        .problem-card .stat { font-size: 2.2rem; font-weight: 800; color: #fff; display: block; margin: 0.5rem 0; }
+        .problem-card p { font-size: 0.9rem; color: var(--soft-gray); margin: 0; }
+
         .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center; }
         .device-visual { position: relative; width: 100%; height: 400px; display: flex; justify-content: center; align-items: center; }
 
-        /* Mocks */
         .phone-mock { width: 200px; height: 400px; border-radius: 30px; background: #000; border: 2px solid var(--hw-border); box-shadow: 0 0 30px var(--hw-shadow); position: relative; overflow: hidden; }
-        
         .relay-mock { width: 80px; height: 320px; border-radius: 8px; background: #000; border: 2px solid var(--hw-border); box-shadow: 0 0 30px var(--hw-shadow); position: relative; overflow: hidden; }
         .relay-mock::after { content: ''; position: absolute; top: 10%; left: 50%; transform: translateX(-50%); width: 4px; height: 40px; background: var(--filecoin-blue); border-radius: 2px; }
 
         .kid-mock { width: 240px; height: 340px; border-radius: 24px; background: #000; border: 2px solid var(--hw-border); box-shadow: 0 0 30px var(--hw-shadow); display: flex; flex-direction: column; padding: 16px; position: relative; }
-        .kid-screen { flex: 1; background: #050505; border-radius: 12px; border: 1px solid #111; margin-bottom: 16px; position: relative; }
+        .kid-screen { flex: 1; background: #050505; border-radius: 12px; border: 1px solid #111; margin-bottom: 16px; position: relative; overflow: hidden; }
         .kid-keyboard { display: grid; grid-template-columns: repeat(10, 1fr); gap: 5px; }
         .key { background: #111; border-radius: 3px; height: 20px; border: 1px solid #1e293b; }
 
-        /* Specifications List */
+        /* ALIGNMENT STYLES */
+        .device-text { text-align: left; }
         .spec-list { list-style: none; padding: 0; margin: 1.5rem 0; color: var(--fg); font-weight: 600; font-size: 0.95rem; }
-        .spec-list li { margin-bottom: 0.6rem; display: flex; align-items: center; gap: 0.6rem; }
-        .spec-list li::before { content: '✓'; color: var(--accent); }
+        .spec-list li { 
+            margin-bottom: 1.2rem; 
+            display: flex; 
+            align-items: flex-start; 
+            gap: 0.8rem; 
+            line-height: 1.4;
+        }
+        .spec-list li::before { 
+            content: '✓'; 
+            color: var(--accent); 
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
 
-        /* Signature and Footer */
         .signature-art svg { margin-top: 2rem; width: 220px; filter: drop-shadow(0 0 10px rgba(0, 240, 255, 0.4)); }
         .footer { padding: 4rem 10%; text-align: center; color: var(--soft-gray); font-size: 0.8rem; letter-spacing: 0.1em; }
-        
-        /* Responsive Breakpoints */
+
         @media (max-width: 900px) { 
             .grid { grid-template-columns: 1fr; text-align: center; } 
             .founder-intro { flex-direction: column; text-align: center; }
-            .device-visual { order: -1; height: 350px; }
+            .device-visual { order: -1; height: 300px; }
             .manifesto-body { border-left: none; padding-left: 0; text-align: center; }
+            .leadership-header { text-align: center; }
+            section { min-height: 100vh; padding: 10vh 10%; }
+            .spec-list li { justify-content: flex-start; text-align: left; }
         }
     </style>
 </head>
@@ -149,19 +218,24 @@
     <div id="web-overlay">
         <div class="map-bg"></div>
         <canvas id="webCanvas"></canvas>
+        <img id="overlay-logo" src="poppmeshlogo.png" alt="PoppMesh Logo">
     </div>
     
     <div class="bg-glow"></div>
-    <nav><div class="logo">PoppMesh</div></nav>
+    
+    <nav>
+        <div class="logo">PoppMesh</div>
+        <img src="poppmeshlogo.png" alt="PoppMesh Logo" class="top-right-logo">
+    </nav>
 
     <section class="hero">
-        <h2>Sovereign Infrastructure</h2>
-        <h1>Connecting<br>People.</h1>
+        <h1>Making Cell Towers Obsolete</h1>
+        <div class="sub-heading">PoppMesh - A network owned by humans</div>
     </section>
 
     <section class="manifesto">
         <div class="founder-intro">
-            <div class="founder-avatar"><img src="spacex.jpg" alt="Joseph Khan"></div>
+            <div class="founder-avatar"><img src="spacex.jpg" alt="SpaceX Context"></div>
             <div class="founder-details">
                 <strong>Joseph Khan</strong>
                 <span>Founder & Chief Architect</span>
@@ -169,13 +243,52 @@
         </div>
         <div class="manifesto-body">
             <h3 style="font-size: 2.5rem; margin-bottom: 1.5rem;">I walked away from the Moon.</h3>
-            <p>The stars are an engineering marvel, but <span>the immediate need is here.</span> I left SpaceX because there is a different path for Earth. A path that is better, safer, and free. We fix the home we have, community by community.</p>
+            <p>
+            I walked away from the Moon and the lunar tech sector <span>because there is much that needs to be done here on Earth.</span> 
+            Our most basic rights have been infringed upon for far too long. We deserve the freedom to connect, the freedom of speech, and the absolute right to privacy. 
+            <span>You should never have to pay a subscription to exercise your fundamental freedoms.</span>
+        </p>
+        </div>
+    </section>
+
+    <section class="leadership">
+        <div class="leadership-header">
+            <h2>Leadership</h2>
+             <p style="color: var(--soft-gray);">Driving the transition from legacy "walled-garden" carriers to a sovereign, decentralized, interplanetary backbone.</p>
+        </div>
+        
+        <div class="leadership-grid">
+            <div class="leader-card">
+    <div class="leader-img-wrapper">
+        <img src="joseph.jpg" alt="Joseph Khan">
+    </div>
+    <h3>Joseph Khan, MBA</h3>
+    <p class="title">Founder, CEO & Chief Architect</p>
+    <p class="creds">
+        B.S. Mechanical Engineering | 10+ Years Experience<br>
+        <strong>3+ Years Radio Frequency Systems</strong><br>
+        <strong>Ex-SpaceX Engineer | Ground Station</strong>
+    </p>
+</div>
+            
+            <div class="leader-card">
+    <div class="leader-img-wrapper">
+        <img src="dipen.jpg" alt="Dipen Joshi">
+    </div>
+    <h3>Dipen Joshi</h3>
+    <p class="title">Founding Technical Advisor</p>
+    <p class="creds">
+       B.S. Computer Science | 15+ Years Experience<br>
+        <strong>Senior Lead, Green Dot</strong><br>
+        <strong>Former CTO, Spl.yt (Science Inc. Portfolio)</strong>
+    </p>
+</div>
         </div>
     </section>
 
     <section class="problem">
         <h2 style="color: var(--filecoin-blue); text-transform: uppercase; letter-spacing: 0.3em; font-size: 0.9rem;">The Broken Grid</h2>
-        <h3 style="font-size: clamp(2rem, 5vw, 3.5rem); margin: 1rem 0 3rem 0;">Big Telecom is Trillion Dollar Dinosaur</h3>
+        <h3 style="font-size: clamp(2rem, 5vw, 3rem); margin: 0.5rem 0 2rem 0;">Big Telecom is Trillion Dollar Dinosaur</h3>
         <div class="problem-grid">
             <div class="problem-card"><h4>Overpricing</h4><span class="stat">$100+ /mo</span><p>The average American pays for individual, underutilized "pipes" that stay 90% idle while they work.</p></div>
             <div class="problem-card"><h4>Privacy Erosion</h4><span class="stat">70%</span><p>Of the world lives under mass surveillance. Your data is the product in the current carrier model.</p></div>
@@ -186,7 +299,13 @@
     <section class="grid">
         <div class="device-text">
             <h2>PoppMesh X1</h2>
-            <p style="color: var(--soft-gray);">Professional-grade sovereign handsets built for absolute privacy and passive earning. Powered by PoppMesh.</p>
+<p style="color: var(--soft-gray);">Professional-grade sovereign handsets built for absolute privacy. A self-sustaining connection powered by PoppMesh.</p>
+<ul class="spec-list">
+    <li><strong>Zero Subscription:</strong> No monthly fees. Data costs are offset by contributing to the network.</li>
+    <li><strong>End-to-End Encryption:</strong> Zero-knowledge architecture; only you and the recipient hold the keys.</li>
+    <li><strong>72-Hour Endurance:</strong> multi-day battery life.</li>
+    <li><strong>Hybrid Connectivity:</strong> Native sovereign mesh with legacy SIM support for total resilience.</li>
+</ul>
         </div>
         <div class="device-visual">
             <div class="phone-mock"></div>
@@ -200,14 +319,43 @@
         <div class="device-text">
             <h2>The Relay</h2>
             <p style="color: var(--soft-gray);">The backbone of the grid. Long-range transit nodes bridging neighborhood clusters to the global network. Powered by PoppMesh.</p>
+            <ul class="spec-list">
+                <li><strong>Directional SDR:</strong> Proprietary transmitters and receivers send powerful beams miles away.</li>
+                <li><strong>Gateway to ISP & IPFS:</strong> Bridges sovereign clusters to the global web and decentralized storage.</li>
+                <li><strong>Proof of Transmission (PoT):</strong> Earn tokens for every packet relayed across the mesh.</li>
+            </ul>
+        </div>
+    </section>
+
+    <section class="grid">
+        <div class="device-text">
+            <h2 style="background: linear-gradient(to right, #fff, var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">The PoppToken Protocol</h2>
+            <p style="color: var(--soft-gray); font-size: 1.1rem; margin-bottom: 1.5rem;">
+                The Sovereign Data Layer: Decentralizing the internet backbone through IPFS content-based routing.
+            </p>
+            <ul class="spec-list">
+                <li><span><strong>Native IPFS Integration:</strong> Retrieves data from the nearest peer by content hash, eliminating the latency of distant centralized servers.</span></li>
+                <li><span><strong>Sovereign ISP Gateways:</strong> High-speed relays provide unrestricted access to the legacy web while bridging traffic into the mesh.</span></li>
+                <li><span><strong>Hybrid Architecture:</strong> Seamlessly switches between local P2P speeds for mesh content and distributed gateways for global reach.</span></li>
+                <li><span><strong>Proof of Transmission (PoT):</strong> Real-time token minting; every 1MB of verified data transit rewards node operators in PoppTokens.</span></li>
+                <li><strong>Anti-Abuse Logic:</strong> Protocol-level balance ensures network resources are earned, not exploited.</li>
+            </ul>
+        </div>
+        <div class="device-visual" id="next-gen-visual" style="position: relative;">
+            <canvas id="nextGenCanvas" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border-radius: 16px;"></canvas>
         </div>
     </section>
 
     <section class="grid">
         <div class="device-text">
             <h2>MeshKID</h2>
-            <p style="color: var(--soft-gray);">Sovereign communication for the next generation. A closed-loop playground prioritizing safety and human connection. Powered by PoppMesh.</p>
-            <ul class="spec-list"><li>Designed for Children's safety</li><li>Private Network</li><li>Peer-to-Peer Encrypted</li><li>Patent-Pending Stranger Removal Technology</li></ul>
+<p style="color: var(--soft-gray);">Sovereign communication for the next generation. A closed-loop safe-zone prioritizing security and human connection.</p>
+<ul class="spec-list">
+    <li><strong>Guardian Protocol:</strong> Patent-pending stranger removal technology keeps the network friends and family-only.</li>
+    <li><strong>Zero-Cloud Privacy:</strong> Direct peer-to-peer encryption with no data mining or central servers.</li>
+    <li><strong>Digital Sovereignty:</strong> No tracking, no ads, and no hidden subscriptions.</li>
+    <li><strong>Built to Last:</strong> Ruggedized hardware with the same long-range HaLow resilience as the X1.</li>
+</ul>
         </div>
         <div class="device-visual">
             <div class="kid-mock">
@@ -221,7 +369,7 @@
         </div>
     </section>
 
-    <section style="text-align: center; border: none; padding-top: 10vh;">
+    <section style="text-align: center; border: none;">
         <p style="font-size: clamp(1.8rem, 4vw, 2.5rem); font-style: italic; max-width: 800px; margin: 0 auto; line-height: 1.4; font-weight: 300; color: #fff;">"Architecting a network that protects our collective connection."</p>
         <div class="signature-art">
             <svg viewBox="0 0 200 80" xmlns="http://www.w3.org/2000/svg">
@@ -236,136 +384,269 @@
     <div class="footer">© 2026 POPPMESH. BUILT FOR EARTH AND BEYOND.</div>
 
     <script>
-        const canvas = document.getElementById('webCanvas');
-        const ctx = canvas.getContext('2d');
+        if ('scrollRestoration' in history) { history.scrollRestoration = 'manual'; }
+        window.scrollTo(0, 0);
+
+        const introCanvas = document.getElementById('webCanvas');
+        const introCtx = introCanvas.getContext('2d');
         const overlay = document.getElementById('web-overlay');
+        const logoImg = document.getElementById('overlay-logo');
+        const mapBg = document.querySelector('.map-bg');
 
-        // Match canvas dimensions to viewport size
-        canvas.width = window.innerWidth; 
-        canvas.height = window.innerHeight;
-        
-        // Define exact center of the screen
-        const centerX = canvas.width / 2; 
-        const centerY = canvas.height / 2;
-        
-        let nodes = [];
-        const baseSpacing = 96; // ~1 inch base spacing
-        const jitter = baseSpacing * 0.8; // Randomization amount to make it organic
-        let waveRadius = 0; // Starts at 0
-        let animationFrameId;
+        introCanvas.width = window.innerWidth; 
+        introCanvas.height = window.innerHeight;
+        const centerX = introCanvas.width / 2; 
+        const centerY = introCanvas.height / 2;
+        let introNodes = [];
+        const baseSpacing = 96;
+        const jitter = baseSpacing * 0.8;
+        let waveRadius = 0;
 
-        // Class defining an organic network node
-        class Node {
+        class IntroNode {
             constructor(x, y, isCenter) {
-                // Apply mathematical jitter if not the center node
-                if (isCenter) {
-                    this.x = x;
-                    this.y = y;
-                } else {
-                    this.x = x + (Math.random() - 0.5) * jitter;
-                    this.y = y + (Math.random() - 0.5) * jitter;
-                }
-                this.isCenter = isCenter;
-                this.opacity = isCenter ? 1 : 0; // Center is visible instantly
+                if (isCenter) { this.x = x; this.y = y; } 
+                else { this.x = x + (Math.random() - 0.5) * jitter; this.y = y + (Math.random() - 0.5) * jitter; }
+                this.opacity = isCenter ? 1 : 0;
             }
-            
-            // Checks if wave has reached this node to reveal it
             update(waveRad) {
                 const dist = Math.hypot(this.x - centerX, this.y - centerY);
-                if (dist < waveRad && this.opacity < 1) {
-                    this.opacity += 0.05; // Quick fade in
-                }
+                if (dist < waveRad && this.opacity < 1) { this.opacity += 0.05; }
             }
-            
-            // Draws the node point
             draw() {
                 if (this.opacity <= 0) return;
-                ctx.beginPath();
-                // Both center node and regular nodes are now drawn at size 2
-                ctx.arc(this.x, this.y, 2, 0, Math.PI * 2);
-                ctx.fillStyle = `rgba(0, 240, 255, ${this.opacity})`; 
-                ctx.fill();
+                introCtx.beginPath();
+                introCtx.arc(this.x, this.y, 2, 0, Math.PI * 2);
+                introCtx.fillStyle = `rgba(0, 240, 255, ${this.opacity})`; 
+                introCtx.fill();
             }
         }
 
-        // Generate the scattered grid of nodes
-        function initGrid() {
-            // Find start coordinates based on base spacing
+        function initIntroGrid() {
             const startX = (centerX % baseSpacing) - baseSpacing;
             const startY = (centerY % baseSpacing) - baseSpacing;
-            
-            // Populate grid with randomized coordinates
-            for (let x = startX; x < canvas.width + baseSpacing; x += baseSpacing) {
-                for (let y = startY; y < canvas.height + baseSpacing; y += baseSpacing) {
-                    // Check if base coordinate is exactly center
+            for (let x = startX; x < introCanvas.width + baseSpacing; x += baseSpacing) {
+                for (let y = startY; y < introCanvas.height + baseSpacing; y += baseSpacing) {
                     const isCenter = Math.abs(x - centerX) < 1 && Math.abs(y - centerY) < 1;
-                    nodes.push(new Node(x, y, isCenter));
+                    introNodes.push(new IntroNode(x, y, isCenter));
                 }
             }
         }
 
-        // Main Animation loop
-        function animateMesh() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            
-            // Expand the reveal wave outward
-            waveRadius += 15;
-
-            // Draw connecting lines between nodes
-            for (let i = 0; i < nodes.length; i++) {
-                for (let j = i + 1; j < nodes.length; j++) {
-                    const n1 = nodes[i];
-                    const n2 = nodes[j];
-                    
+        function animateIntroMesh() {
+            introCtx.clearRect(0, 0, introCanvas.width, introCanvas.height);
+            waveRadius += 15; 
+            for (let i = 0; i < introNodes.length; i++) {
+                for (let j = i + 1; j < introNodes.length; j++) {
+                    const n1 = introNodes[i]; const n2 = introNodes[j];
                     if (n1.opacity <= 0 || n2.opacity <= 0) continue;
-
                     const dist = Math.hypot(n1.x - n2.x, n1.y - n2.y);
-                    
-                    // Connect nodes within range (scattered distance)
                     if (dist < baseSpacing * 1.8) {
-                        ctx.beginPath(); 
-                        ctx.moveTo(n1.x, n1.y); 
-                        ctx.lineTo(n2.x, n2.y);
-                        // Make line opacity dependent on node opacity
-                        const lineOpacity = Math.min(n1.opacity, n2.opacity) * 0.4;
-                        ctx.strokeStyle = `rgba(0, 144, 255, ${lineOpacity})`; 
-                        ctx.lineWidth = 1; 
-                        ctx.stroke();
+                        introCtx.beginPath(); introCtx.moveTo(n1.x, n1.y); introCtx.lineTo(n2.x, n2.y);
+                        introCtx.strokeStyle = `rgba(0, 144, 255, ${Math.min(n1.opacity, n2.opacity) * 0.4})`; 
+                        introCtx.lineWidth = 1; introCtx.stroke();
                     }
                 }
             }
-
-            // Update and render all nodes
-            nodes.forEach(node => { 
-                node.update(waveRadius); 
-                node.draw(); 
-            });
-
-            // Calculate max diagonal distance to corner to know when to stop
-            const maxDist = Math.hypot(centerX, centerY);
-
-            // Continue animation until wave passes corners
-            if (waveRadius < maxDist + 200) {
-                animationFrameId = requestAnimationFrame(animateMesh);
-            } else {
-                // Fade out container
-                overlay.style.opacity = '0';
-                setTimeout(() => { 
-                    overlay.style.display = 'none'; 
-                    cancelAnimationFrame(animationFrameId); 
-                }, 1000);
+            introNodes.forEach(node => { node.update(waveRadius); node.draw(); });
+            if (waveRadius < Math.hypot(centerX, centerY) + 200) { requestAnimationFrame(animateIntroMesh); } 
+            else {
+                overlay.style.backgroundColor = '#000000';
+                introCanvas.style.opacity = '0.3'; logoImg.style.opacity = '1';
+                setTimeout(() => {
+                    logoImg.style.opacity = '0'; introCanvas.style.opacity = '0'; mapBg.style.opacity = '0';
+                    setTimeout(() => { overlay.style.opacity = '0'; setTimeout(() => { overlay.style.display = 'none'; }, 1000); }, 800);
+                }, 2000);
             }
         }
 
-        // Start animation process
-        initGrid(); 
-        animateMesh();
+        initIntroGrid(); 
+        animateIntroMesh();
+        setTimeout(() => { mapBg.style.opacity = '0.07'; }, 200);
+
+        const nextGenCanvas = document.getElementById('nextGenCanvas');
+        const ctxNext = nextGenCanvas.getContext('2d');
+        const nextGenVisualContainer = document.getElementById('next-gen-visual');
+
+        const relativeNodes = [
+            { rx: 0.15, ry: 0.2 }, { rx: 0.85, ry: 0.25 }, { rx: 0.5, ry: 0.1 },
+            { rx: 0.25, ry: 0.8 }, { rx: 0.75, ry: 0.85 }, { rx: 0.5, ry: 0.5 },
+            { rx: 0.1, ry: 0.5 }, { rx: 0.9, ry: 0.6 }, { rx: 0.35, ry: 0.35 },
+            { rx: 0.65, ry: 0.35 }, { rx: 0.35, ry: 0.65 }, { rx: 0.65, ry: 0.65 }
+        ];
+
+        let nextNodes = [];
+        let nextEdges = [];
+        let activePacket = null;
+        let meshTime = 0;
+        let lastJumpTime = 0;
+        let requesterNode = null;
+        let providerNode = null;
+
+        const CONNECTIVITY_RADIUS = 192; 
+
+        function resizeNextGenCanvas() {
+            nextGenCanvas.width = nextGenVisualContainer.clientWidth; 
+            nextGenCanvas.height = nextGenVisualContainer.clientHeight;
+            updateStaticNodes();
+        }
+        window.addEventListener('resize', resizeNextGenCanvas);
+
+        function updateStaticNodes() {
+            nextNodes = relativeNodes.map((pos, index) => ({
+                id: index,
+                x: pos.rx * nextGenCanvas.width,
+                y: pos.ry * nextGenCanvas.height,
+                isBlue: false,
+                isRed: false,
+                rewardTimer: 0,
+                neighbors: []
+            }));
+
+            nextNodes.forEach(node => {
+                const withinRange = nextNodes
+                    .filter(other => other.id !== node.id)
+                    .map(other => ({ node: other, d: Math.hypot(node.x - other.x, node.y - other.y) }))
+                    .filter(obj => obj.d < CONNECTIVITY_RADIUS) 
+                    .sort((a, b) => a.d - b.d);
+                node.neighbors = withinRange.map(obj => obj.node);
+            });
+
+            nextEdges = [];
+            nextNodes.forEach(n => {
+                n.neighbors.forEach(nb => {
+                    if (!nextEdges.find(e => (e.a === nb && e.b === n))) {
+                        nextEdges.push({ a: n, b: nb });
+                    }
+                });
+            });
+        }
+
+        function drawX1(x, y, w, node) {
+            const h = w * 2.1;
+            ctxNext.save();
+            ctxNext.translate(x, y);
+            
+            let primary = '#334155';
+            let screen = '#0f172a';
+            let glow = 'rgba(0, 240, 255, 0)';
+
+            if (node.isRed) {
+                primary = '#991b1b'; screen = '#7f1d1d'; glow = 'rgba(255, 77, 77, 0.4)';
+            } else if (node.isBlue) {
+                primary = '#075985'; screen = '#082f49'; glow = 'rgba(0, 240, 255, 0.4)';
+            }
+
+            if (node.isRed || node.isBlue) {
+                ctxNext.shadowBlur = 10;
+                ctxNext.shadowColor = glow;
+            }
+
+            ctxNext.fillStyle = primary;
+            ctxNext.beginPath();
+            ctxNext.roundRect(-w/2, -h/2, w, h, 4);
+            ctxNext.fill();
+
+            ctxNext.shadowBlur = 0;
+            ctxNext.fillStyle = screen;
+            ctxNext.beginPath();
+            ctxNext.roundRect(-w/2 + 2, -h/2 + 3, w - 4, h - 12, 2);
+            ctxNext.fill();
+
+            ctxNext.fillStyle = primary;
+            ctxNext.beginPath();
+            ctxNext.arc(0, h/2 - 4, 1.5, 0, Math.PI * 2);
+            ctxNext.fill();
+
+            /* REWARD ICON UPDATED TO CYAN GLOW */
+            if (node.rewardTimer > 0) {
+                ctxNext.restore();
+                ctxNext.save();
+                ctxNext.translate(x, y - 35 - (20 - node.rewardTimer));
+                ctxNext.fillStyle = '#00f0ff';
+                ctxNext.shadowBlur = 10;
+                ctxNext.shadowColor = '#00f0ff';
+                ctxNext.font = '600 14px Inter';
+                ctxNext.textAlign = 'center';
+                ctxNext.fillText('$', 0, 0);
+            }
+            ctxNext.restore();
+        }
+
+        function animateNextGenMesh(timestamp) {
+            ctxNext.clearRect(0, 0, nextGenCanvas.width, nextGenCanvas.height);
+            meshTime += 0.04;
+
+            if (!activePacket && timestamp - lastJumpTime > 2000) {
+                lastJumpTime = timestamp;
+                nextNodes.forEach(n => { n.isRed = false; n.isBlue = false; });
+
+                requesterNode = nextNodes[Math.floor(Math.random() * nextNodes.length)];
+                do {
+                    providerNode = nextNodes[Math.floor(Math.random() * nextNodes.length)];
+                } while (providerNode === requesterNode);
+
+                requesterNode.isRed = true;
+                providerNode.isBlue = true;
+
+                activePacket = {
+                    current: providerNode,
+                    target: requesterNode,
+                    progress: 0,
+                    path: [providerNode.id]
+                };
+            }
+
+            nextEdges.forEach(e => {
+                ctxNext.beginPath(); ctxNext.moveTo(e.a.x, e.a.y); ctxNext.lineTo(e.b.x, e.b.y);
+                ctxNext.strokeStyle = 'rgba(0, 240, 255, 0.05)'; ctxNext.stroke();
+            });
+
+            if (activePacket) {
+                activePacket.progress += 0.05;
+                
+                let possibleNext = activePacket.current.neighbors.filter(n => !activePacket.path.includes(n.id));
+                let nextNode = possibleNext.sort((a, b) => 
+                    Math.hypot(a.x - activePacket.target.x, a.y - activePacket.target.y) - 
+                    Math.hypot(b.x - activePacket.target.x, b.y - activePacket.target.y)
+                )[0] || activePacket.current.neighbors[0];
+
+                if (activePacket.progress >= 1) {
+                    activePacket.current.isBlue = true;
+                    if (activePacket.current !== requesterNode) {
+                        activePacket.current.rewardTimer = 20;
+                    }
+                    
+                    activePacket.current = nextNode;
+                    activePacket.path.push(nextNode.id);
+                    activePacket.progress = 0;
+
+                    if (activePacket.current === activePacket.target) {
+                        activePacket.target.isRed = false;
+                        activePacket.target.isBlue = true;
+                        activePacket = null;
+                        lastJumpTime = timestamp;
+                    }
+                }
+
+                if (activePacket) {
+                    const px = activePacket.current.x + (nextNode.x - activePacket.current.x) * activePacket.progress;
+                    const py = activePacket.current.y + (nextNode.y - activePacket.current.y) * activePacket.progress;
+                    ctxNext.beginPath(); ctxNext.arc(px, py, 5, 0, Math.PI * 2);
+                    ctxNext.fillStyle = '#00f0ff';
+                    ctxNext.shadowBlur = 15; ctxNext.shadowColor = '#00f0ff';
+                    ctxNext.fill(); ctxNext.shadowBlur = 0;
+                }
+            }
+
+            nextNodes.forEach(n => {
+                if (n.rewardTimer > 0) n.rewardTimer--;
+                drawX1(n.x, n.y, 14, n);
+            });
+            requestAnimationFrame(animateNextGenMesh);
+        }
         
-        // Handle window resize dynamically to prevent canvas stretching
-        window.addEventListener('resize', () => { 
-            canvas.width = window.innerWidth; 
-            canvas.height = window.innerHeight; 
-        });
+        resizeNextGenCanvas();
+        requestAnimationFrame(animateNextGenMesh);
     </script>
 </body>
 </html>
