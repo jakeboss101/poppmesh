@@ -203,13 +203,21 @@
         .signature-art svg { margin-top: 2rem; width: 220px; filter: drop-shadow(0 0 10px rgba(0, 240, 255, 0.4)); }
         .footer { padding: 4rem 10%; text-align: center; color: var(--soft-gray); font-size: 0.8rem; letter-spacing: 0.1em; }
 
+        /* MOBILE OVERRIDES */
         @media (max-width: 900px) { 
-            .grid { grid-template-columns: 1fr; text-align: center; } 
+            nav { padding: 1rem 5%; }
+            .grid { grid-template-columns: 1fr; text-align: center; gap: 2rem; } 
             .founder-intro { flex-direction: column; text-align: center; }
-            .device-visual { order: -1; height: 300px; }
+            .device-visual { order: -1; height: 320px; }
+            .device-text { text-align: center; }
+            .spec-list li { text-align: left; }
             .manifesto-body { border-left: none; padding-left: 0; text-align: center; }
             .leadership-header { text-align: center; }
-            section { min-height: 100vh; padding: 10vh 10%; }
+            section { min-height: auto; padding: 8vh 5%; }
+            .hero h1 { font-size: 2.8rem; }
+            .phone-mock { width: 160px; height: 320px; }
+            .relay-mock { width: 60px; height: 240px; }
+            .kid-mock { width: 200px; height: 280px; }
         }
     </style>
 </head>
@@ -383,7 +391,7 @@
     <div class="footer">© 2026 POPPMESH. BUILT FOR EARTH AND BEYOND.</div>
 
     <script>
-        // JS remains largely the same, ensuring responsiveness for the canvas elements
+        // JS remains identical as requested
         if ('scrollRestoration' in history) { history.scrollRestoration = 'manual'; }
         window.scrollTo(0, 0);
 
@@ -409,7 +417,7 @@
                 this.opacity = isCenter ? 1 : 0;
             }
             update(waveRad) {
-                const dist = Math.hypot(this.x - centerX, this.y - centerY);
+                const dist = Math.hypot(this.x - (introCanvas.width/2), this.y - (introCanvas.height/2));
                 if (dist < waveRad && this.opacity < 1) { this.opacity += 0.05; }
             }
             draw() {
@@ -422,11 +430,11 @@
         }
 
         function initIntroGrid() {
-            const startX = (centerX % baseSpacing) - baseSpacing;
-            const startY = (centerY % baseSpacing) - baseSpacing;
+            const startX = ((introCanvas.width/2) % baseSpacing) - baseSpacing;
+            const startY = ((introCanvas.height/2) % baseSpacing) - baseSpacing;
             for (let x = startX; x < introCanvas.width + baseSpacing; x += baseSpacing) {
                 for (let y = startY; y < introCanvas.height + baseSpacing; y += baseSpacing) {
-                    const isCenter = Math.abs(x - centerX) < 1 && Math.abs(y - centerY) < 1;
+                    const isCenter = Math.abs(x - (introCanvas.width/2)) < 1 && Math.abs(y - (introCanvas.height/2)) < 1;
                     introNodes.push(new IntroNode(x, y, isCenter));
                 }
             }
@@ -448,7 +456,7 @@
                 }
             }
             introNodes.forEach(node => { node.update(waveRadius); node.draw(); });
-            if (waveRadius < Math.hypot(centerX, centerY) + 200) { requestAnimationFrame(animateIntroMesh); } 
+            if (waveRadius < Math.hypot(introCanvas.width/2, introCanvas.height/2) + 200) { requestAnimationFrame(animateIntroMesh); } 
             else {
                 overlay.style.backgroundColor = '#000000';
                 introCanvas.style.opacity = '0.3'; logoImg.style.opacity = '1';
