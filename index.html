@@ -1,635 +1,214 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PoppMesh | Sovereign Connection</title>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap');
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>PoppMesh</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
 
-        :root {
-            --bg-deep: #020a1a;
-            --bg-accent: #04122d;
-            --fg: #f0f4f8;
-            --accent: #00f0ff;
-            --filecoin-blue: #0090ff;
-            --soft-gray: #94a3b8;
-            --border: rgba(255, 255, 255, 0.1);
-            --hw-border: #1e293b;
-            --hw-shadow: rgba(0, 144, 255, 0.15);
-        }
+  html, body { height: 100%; }
 
-        html {
-            scroll-snap-type: y proximity;
-            scroll-behavior: smooth;
-        }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Inter", "Helvetica Neue", sans-serif;
+    background: #0c0e12;
+    color: #e8e8e8;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 40px;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
 
-        body {
-            margin: 0; 
-            background-color: var(--bg-deep); 
-            color: var(--fg); 
-            font-family: 'Inter', sans-serif; 
-            -webkit-font-smoothing: antialiased; 
-            overflow-x: hidden; 
-            line-height: 1.6; 
-        }
+  header {
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    font-size: 15px;
+  }
 
-        #web-overlay {
-            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-            background-color: var(--bg-deep); z-index: 9999;
-            display: flex; justify-content: center; align-items: center;
-            transition: opacity 1s ease-in-out; pointer-events: none;
-            overflow: hidden;
-        }
+  main {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 80px;
+    flex-wrap: wrap;
+    max-width: 1100px;
+    width: 100%;
+  }
 
-        .map-bg {
-            position: absolute;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background-image: url('map.png');
-            background-size: cover;
-            background-position: center;
-            opacity: 0; 
-            z-index: 1;
-            transition: opacity 1.5s ease-in-out; 
-        }
+  .text { max-width: 480px; }
 
-        #overlay-logo {
-            position: absolute;
-            top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
-            width: 200px;
-            opacity: 0;
-            transition: opacity 1s ease-in-out;
-            z-index: 10;
-        }
+  h1 {
+    font-size: clamp(28px, 4vw, 40px);
+    font-weight: 500;
+    line-height: 1.25;
+    letter-spacing: -0.5px;
+  }
 
-        #webCanvas { 
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 2; 
-            transition: opacity 1s ease-in-out;
-        }
+  canvas.sphere {
+    width: 360px;
+    height: 360px;
+    flex-shrink: 0;
+  }
 
-        .bg-glow {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: radial-gradient(circle at 80% 20%, rgba(0, 144, 255, 0.15), transparent 40%),
-                        radial-gradient(circle at 10% 80%, rgba(0, 240, 255, 0.1), transparent 40%);
-            z-index: -1; pointer-events: none;
-        }
+  footer {
+    font-size: 13px;
+    color: #666;
+  }
 
-        nav {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 1.5rem 10%; position: fixed; width: 100%; box-sizing: border-box; z-index: 1000;
-            background: rgba(2, 10, 26, 0.8); backdrop-filter: blur(20px);
-            border-bottom: 1px solid var(--border);
-        }
-
-        .logo { font-weight: 800; font-size: 1.4rem; letter-spacing: -0.03em; color: var(--accent); }
-
-        .top-right-logo {
-            height: 40px;
-            width: auto;
-            object-fit: contain;
-        }
-
-        section { 
-            padding: 15vh 10%; 
-            min-height: 80vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            box-sizing: border-box;
-            border-bottom: 1px solid var(--border); 
-            scroll-snap-align: start;
-        }
-        
-        .hero { min-height: 100vh; max-width: 1200px; }
-        .hero h2 { font-size: 0.9rem; font-weight: 700; letter-spacing: 0.4em; text-transform: uppercase; color: var(--filecoin-blue); margin-bottom: 1rem; }
-        .hero h1 {
-            font-size: clamp(2.5rem, 6vw, 5rem); font-weight: 800; line-height: 1.1; letter-spacing: -0.04em; margin: 0;
-            background: linear-gradient(to bottom, #fff 60%, var(--soft-gray)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-        }
-        .hero .sub-heading {
-            font-size: clamp(1.2rem, 2.5vw, 2rem);
-            color: var(--soft-gray);
-            margin-top: 1.5rem;
-            font-weight: 300;
-            max-width: 800px;
-        }
-
-        .founder-intro { display: flex; flex-direction: row; align-items: center; gap: 2.5rem; margin-bottom: 3rem; }
-        .founder-avatar { 
-            width: 140px; height: 140px; border-radius: 50%; 
-            background: #000; border: 2px solid var(--filecoin-blue); 
-            display: flex; justify-content: center; align-items: center; 
-            overflow: hidden; box-shadow: 0 0 30px var(--hw-shadow); padding: 4px; flex-shrink: 0;
-        }
-        .founder-avatar img { width: 100%; height: 100%; object-fit: contain; border-radius: 50%; }
-        .founder-details strong { display: block; font-size: 1.8rem; color: #fff; line-height: 1.2; }
-        .founder-details span { font-size: 0.9rem; color: var(--accent); text-transform: uppercase; letter-spacing: 0.15em; font-weight: 600; }
-        
-        .manifesto-body { border-left: none; padding-left: 0; max-width: 900px; }
-        .manifesto-body p { font-size: 1.4rem; color: var(--soft-gray); font-weight: 300; }
-        .manifesto-body span { color: #fff; font-weight: 600; }
-
-        .leadership-header { text-align: left; margin-bottom: 4rem; }
-        .leadership-header h2 { font-size: 3rem; margin: 0; color: #fff; }
-        .leadership-header p { color: var(--accent); font-size: 1.2rem; margin-top: 0.5rem; font-weight: 400; max-width: 800px; }
-        
-        .leadership-grid { display: flex; justify-content: center; gap: 4rem; flex-wrap: wrap; margin-top: 2rem; }
-        .leader-card { text-align: center; max-width: 400px; flex: 1; min-width: 300px; }
-        
-        .leader-img-wrapper { 
-            width: 100%; 
-            aspect-ratio: 1 / 1; 
-            margin: 0 auto 1.5rem; 
-            border-radius: 24px; 
-            overflow: hidden; 
-            border: 2px solid var(--hw-border); 
-            box-shadow: 0 0 30px rgba(0,0,0,0.5);
-            background: #000;
-            position: relative;
-        }
-
-        .leader-img-wrapper img { 
-            width: 100%; height: 100%; object-fit: cover; object-position: center top;
-            filter: grayscale(80%) contrast(1.1) brightness(0.9); 
-            transition: filter 0.4s ease, transform 0.4s ease;
-        }
-
-        .leader-img-wrapper:hover img { 
-            filter: grayscale(0%) contrast(1) brightness(1); 
-            transform: scale(1.03);
-        }
-        
-        .leader-card h3 { margin: 0; font-size: 1.8rem; color: #fff; }
-        .leader-card .title { color: var(--accent); font-size: 1rem; margin: 0.5rem 0; font-weight: 600; }
-        .leader-card .creds { color: var(--soft-gray); font-size: 0.9rem; line-height: 1.6; }
-
-        .problem-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-top: 2rem; }
-        .problem-card { background: rgba(255,255,255,0.03); padding: 2rem; border: 1px solid var(--border); border-radius: 16px; position: relative; overflow: hidden; }
-        .problem-card h4 { color: var(--accent); margin-top: 0; font-size: 1.1rem; text-transform: uppercase; letter-spacing: 0.1em; }
-        .problem-card .stat { font-size: 2.2rem; font-weight: 800; color: #fff; display: block; margin: 0.5rem 0; }
-        .problem-card p { font-size: 0.9rem; color: var(--soft-gray); margin: 0; }
-
-        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center; }
-        .device-visual { position: relative; width: 100%; height: 400px; display: flex; justify-content: center; align-items: center; }
-
-        .phone-mock { width: 200px; height: 400px; border-radius: 30px; background: #000; border: 2px solid var(--hw-border); box-shadow: 0 0 30px var(--hw-shadow); position: relative; overflow: hidden; }
-        .relay-mock { width: 80px; height: 320px; border-radius: 8px; background: #000; border: 2px solid var(--hw-border); box-shadow: 0 0 30px var(--hw-shadow); position: relative; overflow: hidden; }
-        .relay-mock::after { content: ''; position: absolute; top: 10%; left: 50%; transform: translateX(-50%); width: 4px; height: 40px; background: var(--filecoin-blue); border-radius: 2px; }
-
-        .kid-mock { width: 240px; height: 340px; border-radius: 24px; background: #000; border: 2px solid var(--hw-border); box-shadow: 0 0 30px var(--hw-shadow); display: flex; flex-direction: column; padding: 16px; position: relative; }
-        .kid-screen { flex: 1; background: #050505; border-radius: 12px; border: 1px solid #111; margin-bottom: 16px; position: relative; overflow: hidden; }
-        .kid-keyboard { display: grid; grid-template-columns: repeat(10, 1fr); gap: 5px; }
-        .key { background: #111; border-radius: 3px; height: 20px; border: 1px solid #1e293b; }
-
-        /* FIXED ALIGNMENT STYLES */
-        .device-text { text-align: left; }
-        .spec-list { list-style: none; padding: 0; margin: 1.5rem 0; color: var(--fg); font-size: 0.95rem; }
-        .spec-list li { 
-            margin-bottom: 1.2rem; 
-            display: grid; 
-            grid-template-columns: 24px 1fr; /* Ensures checkmark has its own fixed column */
-            gap: 0.5rem; 
-            line-height: 1.4;
-            align-items: start;
-        }
-        .spec-list li::before { 
-            content: '✓'; 
-            color: var(--accent); 
-            font-weight: 800;
-        }
-
-        .signature-art svg { margin-top: 2rem; width: 220px; filter: drop-shadow(0 0 10px rgba(0, 240, 255, 0.4)); }
-        .footer { padding: 4rem 10%; text-align: center; color: var(--soft-gray); font-size: 0.8rem; letter-spacing: 0.1em; }
-
-        /* MOBILE OVERRIDES */
-        @media (max-width: 900px) { 
-            nav { padding: 1rem 5%; }
-            .grid { grid-template-columns: 1fr; text-align: center; gap: 2rem; } 
-            .founder-intro { flex-direction: column; text-align: center; }
-            .device-visual { order: -1; height: 320px; }
-            .device-text { text-align: center; }
-            .spec-list li { text-align: left; }
-            .manifesto-body { border-left: none; padding-left: 0; text-align: center; }
-            .leadership-header { text-align: center; }
-            section { min-height: auto; padding: 8vh 5%; }
-            .hero h1 { font-size: 2.8rem; }
-            .phone-mock { width: 160px; height: 320px; }
-            .relay-mock { width: 60px; height: 240px; }
-            .kid-mock { width: 200px; height: 280px; }
-        }
-    </style>
+  @media (max-width: 700px) {
+    main { gap: 30px; flex-direction: column-reverse; align-items: flex-start; }
+    canvas.sphere { width: 260px; height: 260px; }
+  }
+</style>
 </head>
 <body>
-    <div id="web-overlay">
-        <div class="map-bg"></div>
-        <canvas id="webCanvas"></canvas>
-        <img id="overlay-logo" src="poppmeshlogo.png" alt="PoppMesh Logo">
+  <header>PoppMesh</header>
+
+  <main>
+    <div class="text">
+      <h1>A network for humanity.</h1>
     </div>
-    
-    <div class="bg-glow"></div>
-    
-    <nav>
-        <div class="logo">PoppMesh</div>
-        <img src="poppmeshlogo.png" alt="PoppMesh Logo" class="top-right-logo">
-    </nav>
+    <canvas class="sphere" id="sphere" width="720" height="720"></canvas>
+  </main>
 
-    <section class="hero">
-        <h1>Making Cell Towers Obsolete</h1>
-        <div class="sub-heading">PoppMesh - A network owned by humans</div>
-    </section>
+  <footer>© PoppMesh Inc.</footer>
 
-    <section class="manifesto">
-        <div class="founder-intro">
-            <div class="founder-avatar"><img src="spacex.jpg" alt="SpaceX Context"></div>
-            <div class="founder-details">
-                <strong>Joseph Khan</strong>
-                <span>Founder & Chief Architect</span>
-            </div>
-        </div>
-        <div class="manifesto-body">
-            <h3 style="font-size: 2.5rem; margin-bottom: 1.5rem;">I walked away from the Moon.</h3>
-            <p>
-            I walked away from the Moon and the lunar tech sector <span>because there is much that needs to be done here on Earth.</span> 
-            Our most basic rights have been infringed upon for far too long. We deserve the freedom to connect, the freedom of speech, and the absolute right to privacy. 
-            <span>You should never have to pay a subscription to exercise your fundamental freedoms.</span>
-        </p>
-        </div>
-    </section>
+<script>
+(() => {
+  const canvas = document.getElementById('sphere');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  const cx = W / 2, cy = H / 2;
+  const R = W * 0.38;
 
-    <section class="leadership">
-        <div class="leadership-header">
-            <h2>Leadership</h2>
-             <p style="color: var(--soft-gray);">Driving the transition from legacy "walled-garden" carriers to a sovereign, decentralized, interplanetary backbone.</p>
-        </div>
-        
-        <div class="leadership-grid">
-            <div class="leader-card">
-                <div class="leader-img-wrapper">
-                    <img src="joseph.jpg" alt="Joseph Khan">
-                </div>
-                <h3>Joseph Khan, MBA</h3>
-                <p class="title">Founder, CEO & Chief Architect</p>
-                <p class="creds">
-                    B.S. Mechanical Engineering | 10+ Years Experience<br>
-                    <strong>3+ Years Radio Frequency Systems</strong><br>
-                    <strong>Ex-SpaceX Engineer | Ground Station</strong>
-                </p>
-            </div>
-            
-            <div class="leader-card">
-                <div class="leader-img-wrapper">
-                    <img src="dipen.jpg" alt="Dipen Joshi">
-                </div>
-                <h3>Dipen Joshi</h3>
-                <p class="title">Founding Technical Advisor</p>
-                <p class="creds">
-                   B.S. Computer Science | 15+ Years Experience<br>
-                    <strong>Senior Lead, Green Dot</strong><br>
-                    <strong>Former CTO, Spl.yt (Science Inc. Portfolio)</strong>
-                </p>
-            </div>
-        </div>
-    </section>
+  // Generate evenly distributed points on a sphere (golden spiral / Fibonacci)
+  const N = 90;
+  const points = [];
+  const phi = Math.PI * (3 - Math.sqrt(5)); // golden angle
+  for (let i = 0; i < N; i++) {
+    const y = 1 - (i / (N - 1)) * 2;
+    const r = Math.sqrt(1 - y * y);
+    const theta = phi * i;
+    points.push({
+      x: Math.cos(theta) * r,
+      y: y,
+      z: Math.sin(theta) * r,
+    });
+  }
 
-    <section class="problem">
-        <h2 style="color: var(--filecoin-blue); text-transform: uppercase; letter-spacing: 0.3em; font-size: 0.9rem;">The Broken Grid</h2>
-        <h3 style="font-size: clamp(2rem, 5vw, 3rem); margin: 0.5rem 0 2rem 0;">Big Telecom is Trillion Dollar Dinosaur</h3>
-        <div class="problem-grid">
-            <div class="problem-card"><h4>Overpricing</h4><span class="stat">$100+ /mo</span><p>The average American pays for individual, underutilized "pipes" that stay 90% idle while they work.</p></div>
-            <div class="problem-card"><h4>Privacy Erosion</h4><span class="stat">70%</span><p>Of the world lives under mass surveillance. Your data is the product in the current carrier model.</p></div>
-            <div class="problem-card"><h4>Systemic Fragility</h4><span class="stat">125M Users</span><p>Silenced in a single 12-hour AT&T outage. Centralized infrastructure is a single point of failure.</p></div>
-        </div>
-    </section>
+  // Pre-compute neighbor pairs (mesh edges) — connect points within angular distance
+  const edges = [];
+  const NEIGHBOR_THRESHOLD = 0.32; // dot product threshold (1=same, 0=perpendicular)
+  for (let i = 0; i < N; i++) {
+    for (let j = i + 1; j < N; j++) {
+      const a = points[i], b = points[j];
+      const dot = a.x * b.x + a.y * b.y + a.z * b.z;
+      if (dot > 1 - NEIGHBOR_THRESHOLD) edges.push([i, j]);
+    }
+  }
 
-    <section class="grid">
-        <div class="device-text">
-            <h2>PoppMesh X1</h2>
-            <p style="color: var(--soft-gray);">Professional-grade sovereign handsets built for absolute privacy. A self-sustaining connection powered by PoppMesh.</p>
-            <ul class="spec-list">
-                <li><span><strong>Zero Subscription:</strong> No monthly fees. Data costs are offset by contributing to the network.</span></li>
-                <li><span><strong>End-to-End Encryption:</strong> Zero-knowledge architecture; only you and the recipient hold the keys.</span></li>
-                <li><span><strong>72-Hour Endurance:</strong> multi-day battery life.</span></li>
-                <li><span><strong>Hybrid Connectivity:</strong> Native sovereign mesh with legacy SIM support for total resilience.</span></li>
-            </ul>
-        </div>
-        <div class="device-visual">
-            <div class="phone-mock"></div>
-        </div>
-    </section>
+  let angle = 0;
 
-    <section class="grid">
-        <div class="device-visual">
-            <div class="relay-mock"></div>
-        </div>
-        <div class="device-text">
-            <h2>The Relay</h2>
-            <p style="color: var(--soft-gray);">The backbone of the grid. Long-range transit nodes bridging neighborhood clusters to the global network. Powered by PoppMesh.</p>
-            <ul class="spec-list">
-                <li><span><strong>Directional SDR:</strong> Proprietary transmitters and receivers send powerful beams miles away.</span></li>
-                <li><span><strong>Gateway to ISP & IPFS:</strong> Bridges sovereign clusters to the global web and decentralized storage.</span></li>
-                <li><span><strong>Proof of Transmission (PoT):</strong> Earn tokens for every packet relayed across the mesh.</span></li>
-            </ul>
-        </div>
-    </section>
+  function rotateY(p, ang) {
+    const cos = Math.cos(ang), sin = Math.sin(ang);
+    return {
+      x: p.x * cos + p.z * sin,
+      y: p.y,
+      z: -p.x * sin + p.z * cos,
+    };
+  }
 
-    <section class="grid">
-        <div class="device-text">
-            <h2 style="background: linear-gradient(to right, #fff, var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">The PoppToken Protocol</h2>
-            <p style="color: var(--soft-gray); font-size: 1.1rem; margin-bottom: 1.5rem;">
-                The Sovereign Data Layer: Decentralizing the internet backbone through IPFS content-based routing.
-            </p>
-            <ul class="spec-list">
-                <li><span><strong>Native IPFS Integration:</strong> Retrieves data from the nearest peer by content hash, eliminating latency.</span></li>
-                <li><span><strong>Sovereign ISP Gateways:</strong> High-speed relays provide unrestricted access to the legacy web.</span></li>
-                <li><span><strong>Hybrid Architecture:</strong> Seamlessly switches between local P2P and global gateways.</span></li>
-                <li><span><strong>Proof of Transmission (PoT):</strong> Real-time token minting for verified data transit.</span></li>
-                <li><span><strong>Anti-Abuse Logic:</strong> Protocol-level balance ensures network resources are earned.</span></li>
-            </ul>
-        </div>
-        <div class="device-visual" id="next-gen-visual">
-            <canvas id="nextGenCanvas" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border-radius: 16px;"></canvas>
-        </div>
-    </section>
+  function rotateX(p, ang) {
+    const cos = Math.cos(ang), sin = Math.sin(ang);
+    return {
+      x: p.x,
+      y: p.y * cos - p.z * sin,
+      z: p.y * sin + p.z * cos,
+    };
+  }
 
-    <section class="grid">
-        <div class="device-text">
-            <h2>MeshKID</h2>
-            <p style="color: var(--soft-gray);">Sovereign communication for the next generation. A closed-loop safe-zone prioritizing security and human connection.</p>
-            <ul class="spec-list">
-                <li><span><strong>Guardian Protocol:</strong> Patent-pending stranger removal technology keeps the network safe.</span></li>
-                <li><span><strong>Zero-Cloud Privacy:</strong> Direct peer-to-peer encryption with no data mining.</span></li>
-                <li><span><strong>Digital Sovereignty:</strong> No tracking, no ads, and no hidden subscriptions.</span></li>
-                
-            </ul>
-        </div>
-        <div class="device-visual">
-            <div class="kid-mock">
-                <div class="kid-screen"></div>
-                <div class="kid-keyboard">
-                    <div class="key"></div><div class="key"></div><div class="key"></div><div class="key"></div><div class="key"></div><div class="key"></div><div class="key"></div><div class="key"></div><div class="key"></div><div class="key"></div>
-                    <div class="key"></div><div class="key"></div><div class="key"></div><div class="key"></div><div class="key"></div><div class="key"></div><div class="key"></div><div class="key"></div><div class="key"></div><div class="key"></div>
-                    <div class="key" style="grid-column: span 2;"></div><div class="key" style="grid-column: span 6;"></div><div class="key" style="grid-column: span 2;"></div>
-                </div>
-            </div>
-        </div>
-    </section>
+  function project(p) {
+    return { sx: cx + p.x * R, sy: cy + p.y * R, z: p.z };
+  }
 
-    <section style="text-align: center; border: none;">
-        <p style="font-size: clamp(1.8rem, 4vw, 2.5rem); font-style: italic; max-width: 800px; margin: 0 auto; line-height: 1.4; font-weight: 300; color: #fff;">"Architecting a network that protects our collective connection."</p>
-        <div class="signature-art">
-            <svg viewBox="0 0 200 80" xmlns="http://www.w3.org/2000/svg">
-                <path d="M 40 20 C 60 10, 50 70, 30 65 C 10 60, 20 20, 50 30 C 80 40, 100 50, 110 30 C 120 10, 130 50, 150 40" fill="transparent" stroke="var(--accent)" stroke-width="3" stroke-linecap="round"/>
-                <path d="M 120 20 L 120 70 M 120 45 L 140 30 M 120 55 L 150 70 M 160 70 C 160 40, 180 30, 190 70" fill="transparent" stroke="#fff" stroke-width="3" stroke-linecap="round"/>
-            </svg>
-        </div>
-        <p style="margin-top: 1rem; font-weight: 800; font-size: 1.2rem; letter-spacing: 0.05em;">Joseph Khan</p>
-        <p style="color: var(--soft-gray); text-transform: uppercase; letter-spacing: 0.2em; font-size: 0.8rem;">Chief Architect</p>
-    </section>
+  let pulses = [];
 
-    <div class="footer">© 2026 POPPMESH. BUILT FOR EARTH AND BEYOND.</div>
+  function spawnPulse() {
+    pulses.push({ r: R * 0.05, opacity: 0.35 });
+  }
 
-    <script>
-        // JS remains identical as requested
-        if ('scrollRestoration' in history) { history.scrollRestoration = 'manual'; }
-        window.scrollTo(0, 0);
+  setInterval(spawnPulse, 1300);
 
-        const introCanvas = document.getElementById('webCanvas');
-        const introCtx = introCanvas.getContext('2d');
-        const overlay = document.getElementById('web-overlay');
-        const logoImg = document.getElementById('overlay-logo');
-        const mapBg = document.querySelector('.map-bg');
+  function frame() {
+    ctx.clearRect(0, 0, W, H);
 
-        introCanvas.width = window.innerWidth; 
-        introCanvas.height = window.innerHeight;
-        const centerX = introCanvas.width / 2; 
-        const centerY = introCanvas.height / 2;
-        let introNodes = [];
-        const baseSpacing = 96;
-        const jitter = baseSpacing * 0.8;
-        let waveRadius = 0;
+    angle += 0.0024;
+    const tilt = -0.35;
 
-        class IntroNode {
-            constructor(x, y, isCenter) {
-                if (isCenter) { this.x = x; this.y = y; } 
-                else { this.x = x + (Math.random() - 0.5) * jitter; this.y = y + (Math.random() - 0.5) * jitter; }
-                this.opacity = isCenter ? 1 : 0;
-            }
-            update(waveRad) {
-                const dist = Math.hypot(this.x - (introCanvas.width/2), this.y - (introCanvas.height/2));
-                if (dist < waveRad && this.opacity < 1) { this.opacity += 0.05; }
-            }
-            draw() {
-                if (this.opacity <= 0) return;
-                introCtx.beginPath();
-                introCtx.arc(this.x, this.y, 2, 0, Math.PI * 2);
-                introCtx.fillStyle = `rgba(0, 240, 255, ${this.opacity})`; 
-                introCtx.fill();
-            }
-        }
+    // Transform all points
+    const proj = points.map(p => project(rotateX(rotateY(p, angle), tilt)));
 
-        function initIntroGrid() {
-            const startX = ((introCanvas.width/2) % baseSpacing) - baseSpacing;
-            const startY = ((introCanvas.height/2) % baseSpacing) - baseSpacing;
-            for (let x = startX; x < introCanvas.width + baseSpacing; x += baseSpacing) {
-                for (let y = startY; y < introCanvas.height + baseSpacing; y += baseSpacing) {
-                    const isCenter = Math.abs(x - (introCanvas.width/2)) < 1 && Math.abs(y - (introCanvas.height/2)) < 1;
-                    introNodes.push(new IntroNode(x, y, isCenter));
-                }
-            }
-        }
+    // Pulse rings
+    for (let i = pulses.length - 1; i >= 0; i--) {
+      const p = pulses[i];
+      ctx.strokeStyle = `rgba(92,243,196,${p.opacity})`;
+      ctx.lineWidth = 1.2;
+      ctx.beginPath();
+      ctx.arc(cx, cy, p.r, 0, Math.PI * 2);
+      ctx.stroke();
+      p.r += R * 0.005;
+      p.opacity -= 0.003;
+      if (p.opacity <= 0) pulses.splice(i, 1);
+    }
 
-        function animateIntroMesh() {
-            introCtx.clearRect(0, 0, introCanvas.width, introCanvas.height);
-            waveRadius += 15; 
-            for (let i = 0; i < introNodes.length; i++) {
-                for (let j = i + 1; j < introNodes.length; j++) {
-                    const n1 = introNodes[i]; const n2 = introNodes[j];
-                    if (n1.opacity <= 0 || n2.opacity <= 0) continue;
-                    const dist = Math.hypot(n1.x - n2.x, n1.y - n2.y);
-                    if (dist < baseSpacing * 1.8) {
-                        introCtx.beginPath(); introCtx.moveTo(n1.x, n1.y); introCtx.lineTo(n2.x, n2.y);
-                        introCtx.strokeStyle = `rgba(0, 144, 255, ${Math.min(n1.opacity, n2.opacity) * 0.4})`; 
-                        introCtx.lineWidth = 1; introCtx.stroke();
-                    }
-                }
-            }
-            introNodes.forEach(node => { node.update(waveRadius); node.draw(); });
-            if (waveRadius < Math.hypot(introCanvas.width/2, introCanvas.height/2) + 200) { requestAnimationFrame(animateIntroMesh); } 
-            else {
-                overlay.style.backgroundColor = '#000000';
-                introCanvas.style.opacity = '0.3'; logoImg.style.opacity = '1';
-                setTimeout(() => {
-                    logoImg.style.opacity = '0'; introCanvas.style.opacity = '0'; mapBg.style.opacity = '0';
-                    setTimeout(() => { overlay.style.opacity = '0'; setTimeout(() => { overlay.style.display = 'none'; }, 1000); }, 800);
-                }, 2000);
-            }
-        }
+    // Edges (mesh links) — fade by average z
+    for (const [i, j] of edges) {
+      const a = proj[i], b = proj[j];
+      const avgZ = (a.z + b.z) / 2;
+      const front = (avgZ + 1) / 2; // 0 (back) → 1 (front)
+      ctx.strokeStyle = `rgba(92,243,196,${front * 0.35})`;
+      ctx.lineWidth = front * 1.2;
+      ctx.beginPath();
+      ctx.moveTo(a.sx, a.sy);
+      ctx.lineTo(b.sx, b.sy);
+      ctx.stroke();
+    }
 
-        initIntroGrid(); 
-        animateIntroMesh();
-        setTimeout(() => { if(mapBg) mapBg.style.opacity = '0.07'; }, 200);
+    // Nodes — sort by z so front draws on top
+    const indexed = proj.map((p, i) => ({ ...p, i }));
+    indexed.sort((a, b) => a.z - b.z);
+    for (const p of indexed) {
+      const front = (p.z + 1) / 2;
+      const radius = 1 + front * 3;
+      ctx.fillStyle = `rgba(92,243,196,${0.35 + front * 0.6})`;
+      if (front > 0.85) {
+        ctx.shadowColor = '#5cf3c4';
+        ctx.shadowBlur = 12;
+      } else {
+        ctx.shadowBlur = 0;
+      }
+      ctx.beginPath();
+      ctx.arc(p.sx, p.sy, radius, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.shadowBlur = 0;
 
-        const nextGenCanvas = document.getElementById('nextGenCanvas');
-        const ctxNext = nextGenCanvas.getContext('2d');
-        const nextGenVisualContainer = document.getElementById('next-gen-visual');
+    // Core glow
+    const gradient = ctx.createRadialGradient(cx, cy, 0, cx, cy, R * 0.25);
+    gradient.addColorStop(0, 'rgba(92,243,196,0.18)');
+    gradient.addColorStop(1, 'rgba(92,243,196,0)');
+    ctx.fillStyle = gradient;
+    ctx.beginPath();
+    ctx.arc(cx, cy, R * 0.25, 0, Math.PI * 2);
+    ctx.fill();
 
-        const relativeNodes = [
-            { rx: 0.15, ry: 0.2 }, { rx: 0.85, ry: 0.25 }, { rx: 0.5, ry: 0.1 },
-            { rx: 0.25, ry: 0.8 }, { rx: 0.75, ry: 0.85 }, { rx: 0.5, ry: 0.5 },
-            { rx: 0.1, ry: 0.5 }, { rx: 0.9, ry: 0.6 }, { rx: 0.35, ry: 0.35 },
-            { rx: 0.65, ry: 0.35 }, { rx: 0.35, ry: 0.65 }, { rx: 0.65, ry: 0.65 }
-        ];
+    requestAnimationFrame(frame);
+  }
 
-        let nextNodes = [];
-        let nextEdges = [];
-        let activePacket = null;
-        let meshTime = 0;
-        let lastJumpTime = 0;
-        let requesterNode = null;
-        let providerNode = null;
-
-        const CONNECTIVITY_RADIUS = 192; 
-
-        function resizeNextGenCanvas() {
-            if (!nextGenVisualContainer) return;
-            nextGenCanvas.width = nextGenVisualContainer.clientWidth; 
-            nextGenCanvas.height = nextGenVisualContainer.clientHeight;
-            updateStaticNodes();
-        }
-        window.addEventListener('resize', resizeNextGenCanvas);
-
-        function updateStaticNodes() {
-            nextNodes = relativeNodes.map((pos, index) => ({
-                id: index,
-                x: pos.rx * nextGenCanvas.width,
-                y: pos.ry * nextGenCanvas.height,
-                isBlue: false,
-                isRed: false,
-                rewardTimer: 0,
-                neighbors: []
-            }));
-
-            nextNodes.forEach(node => {
-                const withinRange = nextNodes
-                    .filter(other => other.id !== node.id)
-                    .map(other => ({ node: other, d: Math.hypot(node.x - other.x, node.y - other.y) }))
-                    .filter(obj => obj.d < CONNECTIVITY_RADIUS) 
-                    .sort((a, b) => a.d - b.d);
-                node.neighbors = withinRange.map(obj => obj.node);
-            });
-
-            nextEdges = [];
-            nextNodes.forEach(n => {
-                n.neighbors.forEach(nb => {
-                    if (!nextEdges.find(e => (e.a === nb && e.b === n))) {
-                        nextEdges.push({ a: n, b: nb });
-                    }
-                });
-            });
-        }
-
-        function drawX1(x, y, w, node) {
-            const h = w * 2.1;
-            ctxNext.save();
-            ctxNext.translate(x, y);
-            
-            let primary = '#334155';
-            let screen = '#0f172a';
-            let glow = 'rgba(0, 240, 255, 0)';
-
-            if (node.isRed) {
-                primary = '#991b1b'; screen = '#7f1d1d'; glow = 'rgba(255, 77, 77, 0.4)';
-            } else if (node.isBlue) {
-                primary = '#075985'; screen = '#082f49'; glow = 'rgba(0, 240, 255, 0.4)';
-            }
-
-            if (node.isRed || node.isBlue) {
-                ctxNext.shadowBlur = 10;
-                ctxNext.shadowColor = glow;
-            }
-
-            ctxNext.fillStyle = primary;
-            ctxNext.beginPath();
-            ctxNext.roundRect(-w/2, -h/2, w, h, 4);
-            ctxNext.fill();
-
-            ctxNext.shadowBlur = 0;
-            ctxNext.fillStyle = screen;
-            ctxNext.beginPath();
-            ctxNext.roundRect(-w/2 + 2, -h/2 + 3, w - 4, h - 12, 2);
-            ctxNext.fill();
-
-            if (node.rewardTimer > 0) {
-                ctxNext.restore();
-                ctxNext.save();
-                ctxNext.translate(x, y - 35 - (20 - node.rewardTimer));
-                ctxNext.fillStyle = '#00f0ff';
-                ctxNext.shadowBlur = 10;
-                ctxNext.shadowColor = '#00f0ff';
-                ctxNext.font = '600 14px Inter';
-                ctxNext.textAlign = 'center';
-                ctxNext.fillText('$', 0, 0);
-            }
-            ctxNext.restore();
-        }
-
-        function animateNextGenMesh(timestamp) {
-            ctxNext.clearRect(0, 0, nextGenCanvas.width, nextGenCanvas.height);
-            meshTime += 0.04;
-
-            if (!activePacket && timestamp - lastJumpTime > 2000) {
-                lastJumpTime = timestamp;
-                nextNodes.forEach(n => { n.isRed = false; n.isBlue = false; });
-                requesterNode = nextNodes[Math.floor(Math.random() * nextNodes.length)];
-                do { providerNode = nextNodes[Math.floor(Math.random() * nextNodes.length)]; } while (providerNode === requesterNode);
-                requesterNode.isRed = true;
-                providerNode.isBlue = true;
-                activePacket = { current: providerNode, target: requesterNode, progress: 0, path: [providerNode.id] };
-            }
-
-            nextEdges.forEach(e => {
-                ctxNext.beginPath(); ctxNext.moveTo(e.a.x, e.a.y); ctxNext.lineTo(e.b.x, e.b.y);
-                ctxNext.strokeStyle = 'rgba(0, 240, 255, 0.05)'; ctxNext.stroke();
-            });
-
-            if (activePacket) {
-                activePacket.progress += 0.05;
-                let possibleNext = activePacket.current.neighbors.filter(n => !activePacket.path.includes(n.id));
-                let nextNode = possibleNext.sort((a, b) => 
-                    Math.hypot(a.x - activePacket.target.x, a.y - activePacket.target.y) - 
-                    Math.hypot(b.x - activePacket.target.x, b.y - activePacket.target.y)
-                )[0] || activePacket.current.neighbors[0];
-
-                if (activePacket.progress >= 1) {
-                    activePacket.current.isBlue = true;
-                    if (activePacket.current !== requesterNode) activePacket.current.rewardTimer = 20;
-                    activePacket.current = nextNode;
-                    activePacket.path.push(nextNode.id);
-                    activePacket.progress = 0;
-                    if (activePacket.current === activePacket.target) { activePacket = null; lastJumpTime = timestamp; }
-                }
-
-                if (activePacket) {
-                    const px = activePacket.current.x + (nextNode.x - activePacket.current.x) * activePacket.progress;
-                    const py = activePacket.current.y + (nextNode.y - activePacket.current.y) * activePacket.progress;
-                    ctxNext.beginPath(); ctxNext.arc(px, py, 5, 0, Math.PI * 2);
-                    ctxNext.fillStyle = '#00f0ff';
-                    ctxNext.shadowBlur = 15; ctxNext.shadowColor = '#00f0ff';
-                    ctxNext.fill(); ctxNext.shadowBlur = 0;
-                }
-            }
-
-            nextNodes.forEach(n => {
-                if (n.rewardTimer > 0) n.rewardTimer--;
-                drawX1(n.x, n.y, 14, n);
-            });
-            requestAnimationFrame(animateNextGenMesh);
-        }
-        
-        resizeNextGenCanvas();
-        requestAnimationFrame(animateNextGenMesh);
-    </script>
+  frame();
+})();
+</script>
 </body>
 </html>
